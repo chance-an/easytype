@@ -8,6 +8,7 @@
 //    http://docs.jquery.com/Plugins/Authoring
 //    var
     "use strict";
+
     var charSet = {
         'D' : '#',
         'T' : '$'
@@ -34,6 +35,7 @@
     };
 
     var MONITOR_CHECK_TIMES = 10;
+    var CASE_INSENSITIVE_MATCH = true;
 
     var globalCache = [];
 
@@ -169,6 +171,9 @@
         }
     };
 
+    function testSpecialKey(event){
+        return event.altKey || event.ctrlKey || event.metaKey;
+    }
 
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     function AutoFormatInfoEntry($elem) {
@@ -250,7 +255,7 @@
             var l = this.template.length, lastFragment = null;
             for (var i = 0; i < l; i++) {
                 var s = i, e = i, order = 0,
-                    templateEntry = this.template[i];
+                        templateEntry = this.template[i];
                 if (templateEntry.type == 'L') {
                     for (; e < l; e++) {
                         templateEntry = this.template[e];
@@ -271,80 +276,31 @@
                 while (s <= e) {
                     templateEntry = this.template[s++];
                     templateEntry.fragmentOrder = order++;
+                    templateEntry.templateFragment = newFragment;
                     newFragment.addEntry(templateEntry);
                 }
             }
         },
 
-        getTemplateEntry: function(caret){
+        getTemplateEntry: function(caret) {
             var dataLength = this.inputCache.length;
-            if(caret > dataLength){
-               caret = dataLength;
+            if (caret > dataLength) {
+                caret = dataLength;
             }
             var templateLength = this.template.length;
-            if(caret >= templateLength){
+            if (caret >= templateLength) {
                 return {type: 'EOF', order: templateLength};
             }
             return this.template[caret];
         },
 
-        handleTyping: function(event){
+        handleTyping: function(event) {
             var caret = this.getCaretPosition();
             var templateEntry = this.getTemplateEntry(caret);
-            var cacheUpdated = false;
-
-            if(templateEntry.type == 'EOF'){
+            if (templateEntry.type == 'EOF') {
                 return;
-            }else if(templateEntry.type == 'L'){
-                cacheUpdated = this.labelEntryInputChecking(templateEntry, event);
-            }else{ // handle normal typing input at a Masked position
-                cacheUpdated = this.maskEntryInputChecking(templateEntry, event);
             }
-
-        },
-
-        labelEntryInputChecking: function(templateEntry, event){
-            var cacheUpdated = false;
-            if(templateEntry.matchKey(event)){ //if matched, step ahead
-                if(templateEntry.fragmentOrder == 0){ // if caret is at the front boundary of the fixed text fragment. then prefilling (auto-complete) fixed text fragment
-                    this.prefill(caret);
-                }
-                caret++;
-                cacheUpdated = true;
-            }else{ //if not matched, try to match the next masked input
-                var nextInputPoint = templateEntry.templateFragment.getLastEntry().order + 1;
-                var nextInputEntry = this.getTemplateEntry(nextInputPoint);
-                var result = nextInputEntry.matchKey(event);
-
-                if( result.match ){
-                    if(templateEntry.fragmentOrder == 0){
-                        this.prefill(caret);
-                    }
-                    this.insertInputEntry(nextInputPoint, {type: 'I', value: result.character});
-                    caret = nextInputPoint + 1;
-                    cacheUpdated = true;
-                }
-            }
-            return cacheUpdated;
-        },
-
-        maskEntryInputChecking : function(templateEntry, event){
-            if(this.testSpecialKey(event)){
-                return false;
-            }
-            //test template type match
-            if(templateEntry.type != 'D' && templateEntry.type != 'T'){
-                return false;
-            }
-
-            var result = templateEntry.matchKey(event);
-            if(!result.match){
-                return false;
-            }
-
-            //create entry in input cache
-            this.insertInputEntry(templateEntry.order, {type: 'I', value: result.character});
-            return true;
+            templateEntry.inputChecking(this, caret, event);
         },
 
         handleControlKey : function(event) {
@@ -369,14 +325,14 @@
                 return true;
             }
             return( (event.ctrlKey && ( keyCode == 65 || /* Ctrl + A*/
-                keyCode == 67 || /* Ctrl + C*/
-                keyCode == 86 )     /* Ctrl + V*/
-                ) ||
-                (event.shiftKey && (keyCode == KEY_CODES.LEFT || /* Shift + Left*/
-                    keyCode == KEY_CODES.RIGHT )) || /* Shift + Right*/
-                (keyCode == KEY_CODES.END ) || /* end */
-                (keyCode == KEY_CODES.HOME ) /* home */
-                )
+                    keyCode == 67 || /* Ctrl + C*/
+                    keyCode == 86 )     /* Ctrl + V*/
+                    ) ||
+                    (event.shiftKey && (keyCode == KEY_CODES.LEFT || /* Shift + Left*/
+                            keyCode == KEY_CODES.RIGHT )) || /* Shift + Right*/
+                    (keyCode == KEY_CODES.END ) || /* end */
+                    (keyCode == KEY_CODES.HOME ) /* home */
+                    )
         },
 
         handleFunctionalKey : function(event) {
@@ -413,17 +369,81 @@
         },
 
         //cache manipulation functions
-        prefill: function(caret){
+        prefill: function(caret) {
             var templateEntry = this.getTemplateEntry(caret);
-            if(caret.type != 'L'){
+            if (templateEntry.type != 'L') {
                 return;
             }
-            var l = templateEntry.fragment.getLastEntry().order;
-            while(caret <= l){
+            var l = templateEntry.templateFragment.getLastEntry().order;
+            while (caret <= l) {
                 templateEntry = this.template[caret];
                 this.inputCache[caret++] = {type: 'L', value: templateEntry.value};
             }
+        },
+
+        insertInputEntry : function(caret, insertInputEntry) {
+            var inputQueue = this.buildActiveInputQueueAtCaret(caret), i;
+            inputQueue.splice(0, 0, insertInputEntry);
+            var tailPosition = this.fillActiveInputIntoTemplate(caret, inputQueue);
+            this.prefill(tailPosition);
+        },
+
+        buildActiveInputQueueAtCaret : function(caret) {
+            var inputQueue = [], i, l = this.inputCache.length;
+            while(caret < l){
+                var inputEntry = this.inputCache[caret++];
+                if (inputEntry.type == 'I') {
+                    inputQueue.push(inputEntry);
+                }
+            }
+            return inputQueue;
+        },
+
+        fillActiveInputIntoTemplate : function(caret, inputQueue) {
+            var templateMatchPosition = caret, templateFragment, inputQueueElement, i;
+            while (inputQueue.length) {
+                var templateEntry = this.getTemplateEntry(templateMatchPosition);
+                if (templateEntry.type == 'EOF') { // reach the end of the template
+                    break;
+                }
+                if (templateEntry.type != 'L') {
+                    inputQueueElement = inputQueue.shift();
+                    if (templateEntry.matchCharacter(inputQueueElement.value)) {
+                        this.inputCache[templateMatchPosition++] = inputQueueElement;
+                    } // if not match, the 'inputQueueElement' will be discarded intentionally
+                } else if (templateEntry.type == 'L') {
+                    templateFragment = templateEntry.templateFragment;
+                    var startOrder = templateEntry.fragmentOrder, l = templateFragment.entries.length;
+                    for (i = startOrder; i < l; i++) {
+                        templateEntry = templateFragment.entries[i];
+                        this.inputCache[templateMatchPosition++] = {type: 'L', value: templateEntry.value};
+                        //if the input queue head element match the template entry, consume that head element
+                        inputQueueElement = inputQueue[0];
+                        if (templateEntry.matchCharacter(inputQueueElement.value)) {
+                            inputQueue.shift();
+                        }
+                    }
+                }
+            }
+            this.inputCache.splice(templateMatchPosition, this.inputCache.length);  //delete until last
+            return templateMatchPosition;
+        },
+
+        //UI manipulation
+        displayCache : function(){
+            this.$element.val(this.calculateCachePresentation());
+            //TODO
+//            this.updatePatternPrompt();
+        },
+
+        calculateCachePresentation : function(){
+            var output = '';
+            for(var i = 0, l = this.inputCache.length; i < l; i++){
+                output += this.inputCache[i].value;
+            }
+            return output;
         }
+
     });
 
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -444,17 +464,53 @@
     TemplateEntryLabel.prototype.constructor = TemplateEntryLabel;
 
     $.extend(TemplateEntryLabel.prototype, {
-        matchKey: function(event){
-           var keyCode = event.which || event.keyCode;
-           var character = String.fromCharCode(keyCode);
-           return this.matchCharacter(character);
+        matchKey: function(event) {
+            var keyCode = event.which || event.keyCode;
+            var character = String.fromCharCode(keyCode);
+            return this.matchCharacter(character);
         },
 
-        matchCharacter: function(character){
-            if(wFORMS.behaviors.autoformat.CASE_INSENSITIVE_MATCH){
-               return character.toUpperCase() == this.value.toUpperCase();
-           }
-           return character == this.value;
+        matchCharacter: function(character) {
+            if (CASE_INSENSITIVE_MATCH) {
+                return character.toUpperCase() == this.value.toUpperCase();
+            }
+            return character == this.value;
+        },
+
+        inputChecking: function(infoEntry, caret, event) {
+            var cacheUpdated = false;
+            if (this.matchKey(event)) { //if matched, step ahead
+                if (this.fragmentOrder == 0) { // if caret is at the front boundary of the fixed text fragment. then prefilling (auto-complete) fixed text fragment
+                    infoEntry.prefill(caret);
+                }
+                caret++;
+                cacheUpdated = true;
+            } else { //if not matched, try to match the next masked input
+                var nextInputPoint = this.templateFragment.getLastEntry().order + 1;
+                var nextInputEntry = infoEntry.getTemplateEntry(nextInputPoint);
+                if (nextInputEntry.type == 'EOF') { // if this is the last fragment, fill it anyway
+                    infoEntry.prefill(caret);
+                    caret = nextInputPoint;
+                    cacheUpdated = true;
+                } else {
+                    var result = nextInputEntry.matchKey(event);
+                    if (result.match) {
+                        if (this.fragmentOrder == 0) {
+                            infoEntry.prefill(caret);
+                        }
+                        infoEntry.insertInputEntry(nextInputPoint, {type: 'I', value: result.character});
+                        caret = nextInputPoint + 1;
+                        cacheUpdated = true;
+                    }
+                }
+            }
+            if (cacheUpdated) {
+                infoEntry.displayCache();
+                infoEntry.setCaretPosition(caret + 1);
+                return true;
+            }
+
+            return false;
         }
     });
 
@@ -467,32 +523,52 @@
     $.extend(TemplateEntryMask.prototype, {
         constructor: TemplateEntryMask,
         /**
-        *
-        * @param event The DOM event object
-        * @param keyCode Usually will not be used unless 'matchCharacter' wants to borrow its logic
-        */
-        matchKey: function(event, keyCode){
+         *
+         * @param event The DOM event object
+         * @param keyCode Usually will not be used unless 'matchCharacter' wants to borrow its logic
+         */
+        matchKey: function(event, keyCode) {
             var keyCodeMeta = KEY_CODES[this.type], result = {match: false, character: null};
-            if(keyCode == undefined){
+            if (keyCode == undefined) {
                 keyCode = event.which || event.keyCode;
             }
             var character = null, range = null;
-            for(i = 0 ; i < keyCodeMeta.length; i++){// enumerate ranges
+            for (var i = 0, l = keyCodeMeta.length; i < l; i++) {// enumerate ranges
                 range = keyCodeMeta[i];
-                if(keyCode >= range.keyCodeStart && keyCode <= range.keyCodeEnd){
+                if (keyCode >= range.keyCodeStart && keyCode <= range.keyCodeEnd) {
                     result.match = true;
                     //calculate character
-                    result.character = String.fromCharCode(range.asciiStart + keyCode - range.keyCodeStart);
+                    result.character = String.fromCharCode(keyCode);
                     break;
                 }
             }
             return result;
         },
 
-        matchCharacter: function(character){
+        matchCharacter: function(character) {
             var keyCode = character.charCodeAt(0);
             var result = this.matchKey(null, keyCode);
             return result.match;
+        },
+
+        inputChecking: function(infoEntry, caret, event) {
+            if (testSpecialKey(event)) { // stop input checking if a functional key is pressed
+                return false;
+            }
+            //test template type match
+            if (this.type != 'D' && this.type != 'T') {
+                return false;
+            }
+
+            var result = this.matchKey(event);
+            if (!result.match) {
+                return false;
+            }
+            //create entry in input cache
+            infoEntry.insertInputEntry(this.order, {type: 'I', value: result.character});
+            infoEntry.displayCache();
+            infoEntry.setCaretPosition(caret + 1);
+            return true;
         }
     });
 
