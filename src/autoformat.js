@@ -64,6 +64,7 @@
 
                     infoEntry.applyPattern(settings.pattern);
 
+                    deployLayout($this);
                     bindEvents($this);
 
                     var aaa = 1;
@@ -99,6 +100,16 @@
         };
 
     })(jQuery);
+
+    function deployLayout($element){
+        var $div = $('<div></div>').height($element.width()).width($element.height())
+                .css({
+                    display: $element.css('display')
+                });
+        $element.wrap($div);
+        var aaa = 1;
+
+    }
 
     function bindEvents($elem) {
         $elem.bind('keypress', eventHandlers.keypress);
