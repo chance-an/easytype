@@ -1,9 +1,3 @@
-/**
- * User: anch
- * Date: 9/22/11
- * Time: 2:32 AM
- */
-
 (function() {
 //    http://docs.jquery.com/Plugins/Authoring
 //    var
@@ -40,14 +34,17 @@
     var globalCache = [];
 
 
-    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     (function($) {
 
         var methods = {
             init : function(options) {
 
                 var settings = {
-                    pattern: ''
+                    pattern: '',
+                    css_prompt: 'autoformat_prompt',
+                    css_prompt_label: 'autoformat_prompt_label',
+                    css_prompt_mask: 'autoformat_prompt_mask'
                 };
 
                 if (typeof options === 'object') {
@@ -58,16 +55,15 @@
 
                 return this.each(function() {
                     var $this = $(this);
-                    var infoEntry = new AutoFormatInfoEntry($this);
+                    var infoEntry = new AutoFormatInfoEntry($this, settings);
                     globalCache.push(infoEntry);
                     $this.data('autoformat', infoEntry);
 
                     infoEntry.applyPattern(settings.pattern);
 
-                    deployLayout($this);
+                    deployLayout($this, infoEntry);
                     bindEvents($this);
 
-                    var aaa = 1;
                 });
 
             },
@@ -101,19 +97,68 @@
 
     })(jQuery);
 
-    function deployLayout($element){
-        var $div = $('<div></div>').height($element.width()).width($element.height())
+    function deployLayout($element, autoFormatInfoEntry){
+        var $div = $('<div/>').height($element.outerHeight()).width($element.outerWidth())
                 .css({
-                    display: $element.css('display')
+                    display: $element.css('display'),
+                    position: 'relative'
                 });
-        $element.wrap($div);
-        var aaa = 1;
+        $element.wrap($div).css({
+            'background-color' : 'transparent',
+            position: 'relative'
+        });
+        $div = $element.parent(); //strange, the wrapping div is not $div any more ... -_-!
 
+        var zIndex = (function($e){
+           var zIndex;
+           do{
+               if( (zIndex = $e.css('z-index')) !== 'auto'){
+                   return parseInt(zIndex);
+               }
+           }while(($e = $e.parent()).length!=0 && $e[0].tagName != 'HTML');
+            return 0;
+        })($element);
+
+        if(zIndex == 0){
+            $element.css('z-index', 1)
+        }else{
+            zIndex--;
+        }
+
+        function addCssPropertyValues(){
+            var sum = 0;
+            $.each(arguments, function(i, v){
+                sum += parseFloat($element.css(v).replace(/px$/, ''));
+            });
+            return sum + 'px';
+        }
+
+        autoFormatInfoEntry.ui_measure =
+            (autoFormatInfoEntry.ui_prompt = $('<div></div>').addClass(autoFormatInfoEntry.settings['css_prompt']).css({
+                'font-size': $element.css('font-size'),
+                'font-family': $element.css('font-family'),
+                position : 'absolute',
+                left: '0px',
+                top: '0px',
+                'z-index' : zIndex,
+                'padding-top': addCssPropertyValues('padding-top', 'margin-top', 'border-top-width'),
+                'padding-left': addCssPropertyValues('padding-left', 'margin-left', 'border-left-width'),
+                'padding-right': addCssPropertyValues('padding-right', 'margin-right', 'border-right-width'),
+                'padding-bottom': addCssPropertyValues('padding-bottom', 'margin-bottom', 'border-bottom-width')
+            }).appendTo($div))
+        .clone().css(
+            {
+                visibility: 'hidden',
+                padding: '0px'
+            }
+        ).appendTo($div);
     }
 
     function bindEvents($elem) {
-        $elem.bind('keypress', eventHandlers.keypress);
-        $elem.bind('keydown', eventHandlers.keydown);
+        $.each(['keypress', 'keydown', 'focus', 'blur'], function(i, v){
+            $elem.bind(v, eventHandlers[v]);
+        });
+        $elem.attr('autocomplete', 'off');
     }
 
     var eventHandlers = {
@@ -141,16 +186,14 @@
             return false;
         },
         focus: function() {
-            var id = this.id;
-            var infoEntry = wFORMS.behaviors.autoformat._globalCache[id];
+            var infoEntry = $(this).data('autoformat');
             if (!infoEntry) {
                 return;
             }
             infoEntry.showPrompt();
         },
         blur: function() {
-            var id = this.id;
-            var infoEntry = wFORMS.behaviors.autoformat._globalCache[id];
+            var infoEntry = $(this).data('autoformat');
             if (!infoEntry) {
                 return;
             }
@@ -185,10 +228,15 @@
     function testSpecialKey(event){
         return event.altKey || event.ctrlKey || event.metaKey;
     }
+    function escapeHTMLEntities(value){
+        //todo
+        return value;
+    }
 
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    function AutoFormatInfoEntry($elem) {
+    function AutoFormatInfoEntry($elem, settings) {
         this.$element = $elem;
+        this.settings = settings;
         this.template = null;
         this.templateFragments = [];
         this.promptLayer = null;
@@ -197,6 +245,10 @@
         this._cutMonitorHandler = null;
 
         this.mutex1 = false;
+
+        //UI components references
+        this.ui_prompt = null;
+        this.ui_measure = null;
     }
 
     $.extend(AutoFormatInfoEntry.prototype, {
@@ -443,18 +495,49 @@
         //UI manipulation
         displayCache : function(){
             this.$element.val(this.calculateCachePresentation());
-            //TODO
-//            this.updatePatternPrompt();
+            this.updatePatternPrompt();
         },
-
         calculateCachePresentation : function(){
             var output = '';
             for(var i = 0, l = this.inputCache.length; i < l; i++){
                 output += this.inputCache[i].value;
             }
             return output;
-        }
+        },
 
+        updatePatternPrompt : function(){
+            var inputText = this.$element.val();
+            var output = '';
+
+            var templateOutputPoint = inputText.length;
+
+            for(var i = templateOutputPoint; i < this.template.length; i ++){
+                var templateEntry = this.template[i], symbol, style = this.settings['css_prompt_mask'];
+                if(templateEntry.type == 'L'){
+                    symbol = escapeHTMLEntities(templateEntry.value) ;
+                    style = this.settings['css_prompt_label'];
+                }else{
+                    symbol = charSet[templateEntry.type];
+                }
+                output += '<span class="' + style + '">' + symbol + '</span>';
+            }
+            this.ui_prompt.css('left', this.measureTextWidth( escapeHTMLEntities(inputText) ) + 'px');
+            this.ui_prompt.html( output );
+        },
+
+        measureTextWidth : function(text){
+            this.ui_measure.html(text);
+            return this.ui_measure.width();
+        },
+
+        showPrompt : function(){
+            this.ui_prompt.show();
+            this.updatePatternPrompt();
+        },
+
+        hidePrompt : function(){
+            this.ui_prompt.hide();
+        }
     });
 
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
