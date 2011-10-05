@@ -323,7 +323,6 @@
                     for (; e < l; e++) {
                         templateEntry = this.template[e];
                         if (templateEntry.type != 'L') {
-                            i = e;
                             e--;
                             break;
                         }
@@ -369,20 +368,20 @@
         handleControlKey : function(event) {
             if (this.testCombinationKey(event)) {
                 //no processing, allow browser default behavior
-                this.mutext = true;
+                this.mutex = true;
                 return;
             }
             if (this.handleFunctionalKey(event)) {
-                this.mutex = true; // keydown' has a higher priority. If it processed, then suppress 'keypress'
+                this.mutex = true; // 'keydown' has a higher priority. If it processed, then suppress 'keypress'
                 event.preventDefault();
                 return;
             }
-            this.mutext = false;
+            this.mutex = false; // yield processing right to successive logic
         },
 
         testCombinationKey : function(event) {
             var keyCode = event.which || event.keyCode;
-            //check for ctrl + x
+            //check for ctrl + x , this need to be handled specially, `cause 'cut' action requires special logic
             if (event.ctrlKey && keyCode == 88) { /* Ctrl + X*/
                 this.handleCut(event);
                 return true;
@@ -420,15 +419,40 @@
 
         //function keys handling functions
         handleLeftMovement : function(event, caret) {
+            var templateEntry = this.getTemplateEntry(caret), fragment;
+            if(templateEntry.type == 'EOF'){
+                fragment = this.templateFragments[this.templateFragments.length - 1];
+            }else{
+                fragment = templateEntry.templateFragment;
+                if(fragment.previous){
+                   fragment = fragment.previous;
+                }
+            }
+
+            caret = fragment.entries[0].order;
+            this.setCaretPosition(caret);
+            return caret;
         },
 
         handleRightMovement : function(event, caret) {
+           var templateEntry = this.getTemplateEntry(caret), fragment;
+           if(templateEntry.type == 'EOF'){
+               fragment = this.templateFragments[this.templateFragments.length - 1];
+           }else{
+               fragment =  templateEntry.templateFragment;
+           }
+           caret = fragment.getLastEntry().order + 1;
+           this.setCaretPosition(caret);
+           return caret;
+
         },
 
         handleDelete : function(event, caret) {
+//            console.log('DEL');
         },
 
         handleBackspace : function(event, caret) {
+//            console.log('back');
         },
 
         //cache manipulation functions
