@@ -324,6 +324,7 @@
                         templateEntry = this.template[e];
                         if (templateEntry.type != 'L') {
                             e--;
+                            i = e;
                             break;
                         }
                     }
