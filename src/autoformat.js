@@ -324,10 +324,10 @@
                         templateEntry = this.template[e];
                         if (templateEntry.type != 'L') {
                             e--;
-                            i = e;
                             break;
                         }
                     }
+                    i = (e == l? --e : e);
                 }
                 var newFragment = new TemplateFragment(fragmentOrder++);
                 newFragment.previous = lastFragment;
@@ -346,10 +346,6 @@
         },
 
         getTemplateEntry: function(caret) {
-            var dataLength = this.inputCache.length;
-            if (caret > dataLength) {
-                caret = dataLength;
-            }
             var templateLength = this.template.length;
             if (caret >= templateLength) {
                 return {type: 'EOF', order: templateLength};
@@ -449,7 +445,37 @@
         },
 
         handleDelete : function(event, caret) {
-//            console.log('DEL');
+            var selection = this.getSelection();
+            if(selection.length != 0){
+                this.groupSelectionRemove();
+            }
+
+            var templateEntry = this.getTemplateEntry(caret), templateFragment;
+            if(templateEntry.type == 'L'){
+                templateFragment = templateEntry.templateFragment;
+                if(templateFragment.next == null){
+                    caret = templateFragment.entries[0].order; //will remove the last fragment
+                }else{
+                    templateFragment = templateFragment.next;
+                    var firstEntryOrder = templateFragment.entries[0].order;
+                    //input entry exist?
+                    if(this.inputCache[firstEntryOrder] != undefined // if a Mask entry after the fragment exists
+                        || templateEntry.fragmentOrder !=0){ // if caret is not at the first character of the fragment
+                        caret = firstEntryOrder; // skip to first entry of the next adjacent fragment
+                    }else{
+                        caret = templateEntry.templateFragment.entries[0].order; //prepare to remove the current fragment
+                    }
+                }
+            }
+
+            var inputQueue= this.buildActiveInputQueueAtCaret(caret);
+            inputQueue.shift();
+
+            this.fillActiveInputIntoTemplate(caret, inputQueue);
+            this.displayCache();
+            this.setCaretPosition(caret);
+
+            return true;
         },
 
         handleBackspace : function(event, caret) {
@@ -513,8 +539,13 @@
                     }
                 }
             }
+
             this.inputCache.splice(templateMatchPosition, this.inputCache.length);  //delete until last
             return templateMatchPosition;
+        },
+
+        groupSelectionRemove: function(){
+
         },
 
         //UI manipulation
@@ -625,7 +656,7 @@
             }
             if (cacheUpdated) {
                 infoEntry.displayCache();
-                infoEntry.setCaretPosition(caret + 1);
+                infoEntry.setCaretPosition(caret);
                 return true;
             }
 
