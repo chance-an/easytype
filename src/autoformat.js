@@ -128,7 +128,8 @@
         function addCssPropertyValues(){
             var sum = 0;
             $.each(arguments, function(i, v){
-                sum += parseFloat($element.css(v).replace(/px$/, ''));
+                var value = parseFloat($element.css(v).replace(/px$/, ''));
+                sum += isNaN(value) ? 0 : value;
             });
             return sum + 'px';
         }
@@ -479,7 +480,35 @@
         },
 
         handleBackspace : function(event, caret) {
-//            console.log('back');
+            var selection = this.getSelection(), templateFragment;
+            if(selection.length != 0){
+                this.groupSelectionRemove();
+            }
+            if(--caret < 0){
+                return true; //handled, already at the beginning
+            }
+
+            var templateEntry = this.getTemplateEntry(caret);
+            if(templateEntry.type == 'L'){
+                templateFragment = templateEntry.templateFragment;
+                if(templateFragment.order ==0){
+                    if(this.inputCache[caret+1] !== undefined){// if there is a fragment comes after the first L fragment
+                        this.setCaretPosition(0);
+                        return;
+                    }
+                    caret = 0;//the fragment will be deleted
+                }else{
+                    templateFragment = templateFragment.previous;
+                    caret = templateFragment.entries[0].order;
+                }
+            }
+            var inputQueue= this.buildActiveInputQueueAtCaret(caret);
+            inputQueue.shift();
+
+            this.fillActiveInputIntoTemplate(caret, inputQueue);
+            this.displayCache();
+            this.setCaretPosition(caret);
+            return true;
         },
 
         //cache manipulation functions
