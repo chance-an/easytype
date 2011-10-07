@@ -448,7 +448,7 @@
         handleDelete : function(event, caret) {
             var selection = this.getSelection();
             if(selection.length != 0){
-                this.groupSelectionRemove();
+                return this.groupSelectionRemove(selection);
             }
 
             var templateEntry = this.getTemplateEntry(caret), templateFragment;
@@ -482,7 +482,7 @@
         handleBackspace : function(event, caret) {
             var selection = this.getSelection(), templateFragment;
             if(selection.length != 0){
-                this.groupSelectionRemove();
+                return this.groupSelectionRemove(selection);
             }
             if(--caret < 0){
                 return true; //handled, already at the beginning
@@ -573,8 +573,34 @@
             return templateMatchPosition;
         },
 
-        groupSelectionRemove: function(){
+        groupSelectionRemove: function(selection, updatePresentation){
+            if(updatePresentation == undefined){
+                updatePresentation = true;
+            }
+            var caret = selection.caret;
+            var inputQueue= this.buildActiveInputQueueAtCaret(caret);
+            var activeInput = this.inputMaskStatisticWithinRange(caret, selection.length);
+            while(activeInput--){
+                inputQueue.shift();
+            }
+            this.fillActiveInputIntoTemplate(caret, inputQueue, true);
+            if(updatePresentation){
+                this.displayCache();
+                this.setCaretPosition(caret);
+            }
+            return true;
+        },
 
+        inputMaskStatisticWithinRange : function(caret, length){
+            var count = 0;
+            for(var i = caret, j = 0, l = this.inputCache.length; i < l && j < length; i++){
+                var inputEntry = this.inputCache[i];
+                if(inputEntry.type != 'L'){
+                    count++;
+                }
+                j++
+            }
+            return count;
         },
 
         //UI manipulation
