@@ -257,19 +257,36 @@
             return this.getSelection().caret;
         },
 
-        getSelection: function() {
-            var element = this.$element[0];
-            var cursurPosition = -1, selectionLength;
-            if (element.selectionStart >= 0) {
-                cursurPosition = element.selectionStart;
-                selectionLength = element.selectionEnd - element.selectionStart;
-            } else {//IE
-                var range = document.selection.createRange();
-                selectionLength = range.text.length;
-                range.moveStart("character", -element.value.length);
-                cursurPosition = range.text.length - selectionLength;
-            }
-            return {caret: cursurPosition, length: selectionLength};
+        getSelection: function(){
+           var element = this.$element[0];
+           var cursurPosition=-1, selectionLength;
+           if(element.selectionStart >=0 ){
+               cursurPosition= element.selectionStart;
+               selectionLength =  element.selectionEnd - element.selectionStart;
+           }else if(document.selection){//IE
+               var $oS, $oR, $oT;
+               if (element.tagName && element.tagName === "TEXTAREA"){
+                    $oS = document.selection.createRange().duplicate();
+                    $oR = element.createTextRange();
+                    $oR.collapse(false);
+                    $oR.moveToBookmark($oS.getBookmark());
+                    if ($oS.text === ''){
+                        $oT = $oR.duplicate();
+                        $oT.moveEnd("character", 1);
+                        if ($oS.boundingWidth === $oT.boundingWidth && $oS.boundingHeight === $oT.boundingHeight){
+                            $oR = $oT;
+                        }
+                    }
+               }else{
+                    $oR = document.selection.createRange().duplicate();
+               }
+               selectionLength = $oR.text.length;
+               cursurPosition = Math.abs($oR.moveStart("character", -1000000));
+           }else if (document.getSelection){ /* Netscape */
+               cursurPosition = 0;
+               selectionLength = document.getSelection().length;
+           }
+           return {caret: cursurPosition, length: selectionLength};
         },
 
         setCaretPosition: function(pos) {
