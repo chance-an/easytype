@@ -156,7 +156,7 @@
     }
 
     function bindEvents($elem) {
-        $.each(['keypress', 'keydown', 'focus', 'blur'], function(i, v){
+        $.each(['keypress', 'keydown', 'focus', 'blur', 'paste'], function(i, v){
             $elem.bind(v, eventHandlers[v]);
         });
         $elem.attr('autocomplete', 'off');
@@ -201,25 +201,23 @@
             infoEntry.hidePrompt();
         },
         paste: function(event) {
-            var id = this.id;
-            var infoEntry = wFORMS.behaviors.autoformat._globalCache[id];
+            var infoEntry = $(this).data('autoformat');
             if (!infoEntry) {
                 return;
             }
-            var selection = wFORMS.behaviors.autoformat.getSelection(infoEntry.element);
+            var selection = infoEntry.getSelection();
 
             infoEntry._pasteMonitorHandler = window.setInterval((function() {
-                var entry = infoEntry;
                 var count = 0;
                 return function() {
-                    var result = entry.checkCacheTempered(selection);
+                    var result = infoEntry.checkCacheTempered(selection);
                     if (result != false) {
-                        window.clearInterval(entry._pasteMonitorHandler);
-                        entry.handlePaste(result, selection);
+                        window.clearInterval(infoEntry._pasteMonitorHandler);
+                        infoEntry.handlePaste(result, selection);
                     }
                     count++;
                     if (count >= MONITOR_CHECK_TIMES) {
-                        window.clearInterval(entry._pasteMonitorHandler);
+                        window.clearInterval(infoEntry._pasteMonitorHandler);
                     }
                 };
             })(), 10);
@@ -528,6 +526,30 @@
             return true;
         },
 
+        handlePaste: function(difference, refSelection){
+            var inputQueue = this.buildActiveInputQueueAtCaret(difference.start);
+            var removeCount = 0;
+            if(refSelection.length != 0){// need remove the active input characters in the selection
+                removeCount = this.inputMaskStatisticWithinRange(refSelection.caret, refSelection.length);
+            }
+            //remove 'removeCount' elements from the queue
+            while(removeCount --){
+                inputQueue.shift();
+            }
+            var insertionQueue = [];
+            //build up insertion as entry list
+            for(var i = 0; i < difference.diff.length; i++){
+                insertionQueue.push({type: 'I', value: difference.diff[i]});
+            }
+            //splice the insertion with the successive input
+            inputQueue = insertionQueue.concat(inputQueue);
+
+            this.fillActiveInputIntoTemplate(difference.start, inputQueue);
+            this.displayCache();
+            this.setCaretPosition(difference.start);
+            return true;
+        },
+
         //cache manipulation functions
         prefill: function(caret) {
             var templateEntry = this.getTemplateEntry(caret);
@@ -618,6 +640,29 @@
                 j++
             }
             return count;
+        },
+
+        checkCacheTempered : function(refSelection){
+            var value = this.$element.val(), valueLength = value.length,
+                cacheLength = this.inputCache.length, diff, start;
+            var cache = this.calculateCachePresentation();
+            cacheLength = cacheLength - refSelection.length;
+
+            if(value == cache){// no change
+                return false;
+            }
+            var diffLength = valueLength - cacheLength;
+            var caret = this.getCaretPosition();
+            if(diffLength > 0){ //pasted new stuff
+                //the difference would be the 'diffLength'-long portion before caret
+                start = caret - diffLength;
+                diff = value.substr(start, diffLength);
+            }else{
+                start = caret;
+                diff = this.calculateCachePresentation().substr(start, -diffLength);
+            }
+
+            return {diff: diff, start: start, length : diffLength};
         },
 
         //UI manipulation
