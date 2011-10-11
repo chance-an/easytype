@@ -461,6 +461,7 @@
         },
 
         handleDelete : function(event, caret) {
+            var preserveTrailingFragment = true;
             var selection = this.getSelection();
             if(selection.length != 0){
                 return this.groupSelectionRemove(selection);
@@ -468,6 +469,7 @@
 
             var templateEntry = this.getTemplateEntry(caret), templateFragment;
             if(templateEntry.type == 'L'){
+                preserveTrailingFragment = false;
                 templateFragment = templateEntry.templateFragment;
                 if(templateFragment.next == null){
                     caret = templateFragment.entries[0].order; //will remove the last fragment
@@ -487,7 +489,7 @@
             var inputQueue= this.buildActiveInputQueueAtCaret(caret);
             inputQueue.shift();
 
-            this.fillActiveInputIntoTemplate(caret, inputQueue);
+            this.fillActiveInputIntoTemplate(caret, inputQueue, preserveTrailingFragment);
             this.displayCache();
             this.setCaretPosition(caret);
 
@@ -495,6 +497,7 @@
         },
 
         handleBackspace : function(event, caret) {
+            var preserveTrailingFragment = true;
             var selection = this.getSelection(), templateFragment;
             if(selection.length != 0){
                 return this.groupSelectionRemove(selection);
@@ -505,6 +508,7 @@
 
             var templateEntry = this.getTemplateEntry(caret);
             if(templateEntry.type == 'L'){
+                preserveTrailingFragment = false;
                 templateFragment = templateEntry.templateFragment;
                 if(templateFragment.order ==0){
                     if(this.inputCache[caret+1] !== undefined){// if there is a fragment comes after the first L fragment
@@ -520,7 +524,7 @@
             var inputQueue= this.buildActiveInputQueueAtCaret(caret);
             inputQueue.shift();
 
-            this.fillActiveInputIntoTemplate(caret, inputQueue);
+            this.fillActiveInputIntoTemplate(caret, inputQueue, false);
             this.displayCache();
             this.setCaretPosition(caret);
             return true;
@@ -581,7 +585,10 @@
             return inputQueue;
         },
 
-        fillActiveInputIntoTemplate : function(caret, inputQueue) {
+        fillActiveInputIntoTemplate : function(caret, inputQueue, preserveTrailingEntry) {
+            if(preserveTrailingEntry === undefined){
+                preserveTrailingEntry = true;
+            }
             var templateMatchPosition = caret, templateFragment, inputQueueElement, i;
             while (inputQueue.length) {
                 var templateEntry = this.getTemplateEntry(templateMatchPosition);
@@ -607,8 +614,16 @@
                     }
                 }
             }
+            templateEntry = this.getTemplateEntry(templateMatchPosition);
+            if( preserveTrailingEntry && (templateEntry instanceof TemplateEntryLabel && templateEntry.fragmentOrder === 0
+                    &&  this.inputCache[templateMatchPosition] !== undefined) ){
+                // if the next point to delete is the front boundary of a fragment, and the fragment existed before, then
+                // preserve this fragment (skip it and delete the entries that come after it)
+                templateMatchPosition = templateEntry.templateFragment.getLastEntry().order  + 1;
+            }
 
             this.inputCache.splice(templateMatchPosition, this.inputCache.length);  //delete until last
+
             return templateMatchPosition;
         },
 
