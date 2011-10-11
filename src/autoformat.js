@@ -554,6 +554,37 @@
             return true;
         },
 
+        handleCut: function(event){
+            var selection = this.getSelection();
+            if(selection.length==0){ // nothing will be cut, directly return
+                return;
+            }
+            this._valueBeforeCut = this.$element.val();
+            this.groupSelectionRemove(selection, false); //straighten cache first regardless of repsentation change
+
+            //since we dont know when the browser's behaviour will complete the cut operation, we have to poll the current value
+            // and compare it with the value last seen ('this._valueBeforeCut')
+            // after the value is changed, we are sure that the cut operation is fulfilled(content went to the clipboard), then
+            // we can synchronize the value with the inputCache
+            this._cutMonitorHandler = window.setInterval((function(entry){
+                var count = 0;
+                return function(){
+                    var value = entry.$element.val();
+                    if(value != entry._valueBeforeCut){
+                        entry._valueBeforeCut = null;
+                        window.clearInterval(entry._cutMonitorHandler);
+                        entry.displayCache();
+                        entry.setCaretPosition(selection.caret);
+                    }
+
+                    count++;
+                    if(count >= MONITOR_CHECK_TIMES){
+                        window.clearInterval(entry._cutMonitorHandler);
+                    }
+                };
+            })(this), 10);
+        },
+
         //cache manipulation functions
         prefill: function(caret) {
             var templateEntry = this.getTemplateEntry(caret);
