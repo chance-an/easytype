@@ -105,7 +105,8 @@
                 });
         $element.wrap($div).css({
             'background-color' : 'transparent',
-            position: 'relative'
+            position: 'relative',
+            'ime-mode': 'disabled'
         });
         $div = $element.parent(); //strange, the wrapping div is not $div any more ... -_-!
 
@@ -172,7 +173,8 @@
             height: autoFormatInfoEntry.$element.height(),
             top: autoFormatInfoEntry.ui_prompt.css('padding-top'),
             'z-index': zIndex + 2,
-            'background-color' : '#000000'
+            'background-color' : '#000000',
+            visibility: 'hidden'
 
         }).insertBefore(autoFormatInfoEntry.ui_renderingComponent);
         autoFormatInfoEntry.$element.css('color', 'transparent');
@@ -314,6 +316,7 @@
         this.ui_caretBlink = null;
 
         this.caretBlinkLeftPatch = 0;
+        this.fontStyleString = this.computeFontStyleString();
     }
 
     $.extend(AutoFormatInfoEntry.prototype, {
@@ -782,10 +785,20 @@
         },
 
         //UI manipulation
+        computeFontStyleString: function(){
+            var $element = this.$element, style = '';
+            var properties = ['font-size', 'font-family', 'font-weight', 'line-height'];
+            $.each(properties, function(i, v){
+                style += v + ':' + $element.css(v) + ' !important; ';
+            });
+            return style;
+        },
+
         displayCache : function(){
             this.$element.val(this.calculateCachePresentation());
             if(this.settings['deluxe']){
                 this.ui_renderingComponent.html((this.calculateCacheDeluxePresentation()));
+                this.normalizeFont(this.ui_renderingComponent);
             }
             this.updatePatternPrompt();
         },
@@ -805,11 +818,17 @@
         },
 
         updatePatternPrompt : function(){
-            var inputText = this.$element.val();
+            var inputText = this.$element.val(), presentation;
+            if( this.settings['deluxe'] ){
+                presentation = inputText;
+            }else{
+                presentation = this.calculateCacheDeluxePresentation();
+            }
             var output = this.constructEntriesPresentation(this.template, inputText.length, this.template.length);
 
-            this.ui_prompt.css('left', this.measureTextWidth( inputText ) + 'px');
+            this.ui_prompt.css('left', this.measureTextWidth( presentation ) + 'px');
             this.ui_prompt.html( output );
+            this.normalizeFont(this.ui_prompt);
         },
 
         constructEntriesPresentation: function(arr, from, to){
@@ -827,8 +846,13 @@
             return output;
         },
 
+        normalizeFont: function($element){
+            $element.find('span').attr('style', this.fontStyleString);
+        },
+
         measureTextWidth : function(text){
             this.ui_measure.html(text);
+            this.normalizeFont(this.ui_measure);
             return this.ui_measure.width();
         },
 
