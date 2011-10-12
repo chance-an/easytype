@@ -103,12 +103,14 @@
                     display: $element.css('display'),
                     position: 'relative'
                 });
+        var originalBackground = $element.css('background-color');
         $element.wrap($div).css({
             'background-color' : 'transparent',
             position: 'relative',
             'ime-mode': 'disabled'
         });
         $div = $element.parent(); //strange, the wrapping div is not $div any more ... -_-!
+        $div.css('background-color', originalBackground);
 
         var zIndex = (function($e){
            var zIndex;

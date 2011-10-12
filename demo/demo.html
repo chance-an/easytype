@@ -2,12 +2,13 @@
 <html>
 <head>
     <title>Auto Format Dev</title>
+    <link href="background.css" media="screen" type="text/css" rel="stylesheet" charset="UTF-8" />
     <style type="text/css" media="screen">
-        div.paragraph{
-            width: 80%;
+        div.content{
+            width: 100%;
             display: table;
             text-align: center;
-            margin: 3em 0em;
+            margin: 0em;
         }
         .autoformat_prompt{
             color: #dcdcdc;
@@ -21,6 +22,7 @@
         }
     </style>
     <script src="http://code.jquery.com/jquery-1.6.4.js" language="JavaScript" type="text/javascript"></script>
+    <script src="background.js" language="JavaScript" type="text/javascript"></script>
     <script src="../src/autoformat.js" language="JavaScript" type="text/javascript"></script>
 
     <script language="JavaScript" type="text/javascript">
@@ -30,19 +32,29 @@
              $('label[title="2nd"] input').autoformat({pattern: 'if###else##-####or', deluxe: true});
          }
 
-    $(document).ready(initialize);
+        $(document).ready(initialize);
     </script>
 </head>
 <body>
+<div id="background">
+    <img src="images/bg.png">
+    <object
+</div>
 
-<div class="paragraph">
-    <label title="1st">
-        <input type="text" size="20" value=""/>
-    </label>
+<div class="content">
+    <div id="sidebar">
+        ah..
+    </div>
 
-     <label title="2nd">
-        <input type="text" size="20" value=""/>
-    </label>
+    <div id="main">
+        <label title="1st">
+            <input type="text" size="20" value=""/>
+        </label>
+
+         <label title="2nd">
+            <input type="text" size="20" value=""/>
+        </label>
+    </div>
 </div>
 
 </body>

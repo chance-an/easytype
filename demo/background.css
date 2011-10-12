@@ -1,0 +1,30 @@
+body{
+    margin:  0;
+    padding: 0;
+}
+
+#background{
+    background-color: #7bce54;
+    position: absolute;
+    z-index: 0;
+}
+
+.content, .content *{
+    position: relative;
+    z-index: 1;
+}
+
+#sidebar{
+    float: right;
+    width: 30%;
+    background: #7bce54;
+}
+
+head { height: 100%; }
+body { min-height: 100%; }
+
+.content #main{
+    margin-top: 3em;
+    width: 70%;
+    float:right;
+}
