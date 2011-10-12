@@ -1,6 +1,4 @@
 (function() {
-//    http://docs.jquery.com/Plugins/Authoring
-//    var
     "use strict";
 
     var charSet = {
@@ -30,6 +28,7 @@
 
     var MONITOR_CHECK_TIMES = 10;
     var CASE_INSENSITIVE_MATCH = true;
+    var BLINK_INTERVAL = 500;
 
     var globalCache = [];
 
@@ -41,10 +40,12 @@
             init : function(options) {
 
                 var settings = {
-                    pattern: '',
                     css_prompt: 'autoformat_prompt',
-                    css_prompt_label: 'autoformat_prompt_label',
-                    css_prompt_mask: 'autoformat_prompt_mask'
+                    css_entry_label: 'autoformat_prompt_label',
+                    css_entry_mask: 'autoformat_prompt_mask',
+                    css_input_text: 'autoformat_input_text',
+                    deluxe: false,
+                    pattern: ''
                 };
 
                 if (typeof options === 'object') {
@@ -62,18 +63,17 @@
                     infoEntry.applyPattern(settings.pattern);
 
                     deployLayout($this, infoEntry);
-                    bindEvents($this);
+                    bindEvents($this, infoEntry);
 
                 });
 
             },
 
             destroy : function() {
-
                 return this.each(function() {
-                    //
+                    //TODO
+                    var $this = $(this);
                 })
-
             },
 
             /**
@@ -135,7 +135,7 @@
         }
 
         autoFormatInfoEntry.ui_measure =
-            (autoFormatInfoEntry.ui_prompt = $('<div></div>').addClass(autoFormatInfoEntry.settings['css_prompt']).css({
+            (autoFormatInfoEntry.ui_prompt = $('<div></div>').css({
                 'font-size': $element.css('font-size'),
                 'font-family': $element.css('font-family'),
                 position : 'absolute',
@@ -153,13 +153,47 @@
                 padding: '0px'
             }
         ).appendTo($div);
+        autoFormatInfoEntry.ui_prompt.addClass(autoFormatInfoEntry.settings['css_prompt']);
+
+        if(autoFormatInfoEntry.settings['deluxe']){
+            deployExtraUI(autoFormatInfoEntry, zIndex);
+        }
     }
 
-    function bindEvents($elem) {
+    function deployExtraUI(autoFormatInfoEntry, zIndex){
+        autoFormatInfoEntry.ui_renderingComponent = autoFormatInfoEntry.ui_prompt.clone()
+            .insertBefore(autoFormatInfoEntry.ui_prompt).addClass(autoFormatInfoEntry.settings['css_input_text'])
+            .removeClass(autoFormatInfoEntry.settings['css_prompt']);
+        autoFormatInfoEntry.ui_measure.addClass(autoFormatInfoEntry.settings['css_input_text']);
+
+        autoFormatInfoEntry.ui_caretBlink = $('<div></div>').css({
+            position : 'absolute',
+            width: '1px',
+            height: autoFormatInfoEntry.$element.height(),
+            top: autoFormatInfoEntry.ui_prompt.css('padding-top'),
+            'z-index': zIndex + 2,
+            'background-color' : '#000000'
+
+        }).insertBefore(autoFormatInfoEntry.ui_renderingComponent);
+        autoFormatInfoEntry.$element.css('color', 'transparent');
+
+        autoFormatInfoEntry.caretBlinkLeftPatch
+            = parseInt(autoFormatInfoEntry.ui_prompt.css('padding-left').replace(/px$/, ''));
+    }
+
+    function bindEvents($elem, infoEntry) {
         $.each(['keypress', 'keydown', 'focus', 'blur', 'paste'], function(i, v){
             $elem.bind(v, eventHandlers[v]);
         });
         $elem.attr('autocomplete', 'off');
+
+        if(infoEntry.settings['deluxe']){
+            $.each(['focus', 'blur'], function(i, v){
+                $elem.bind(v, eventHandlers[v + 'Extra']);
+            });
+            $elem.bind('click', eventHandlers['click']);
+
+        }
     }
 
     var eventHandlers = {
@@ -193,6 +227,15 @@
             }
             infoEntry.showPrompt();
         },
+
+        focusExtra: function() {
+            var infoEntry = $(this).data('autoformat');
+            if (!infoEntry) {
+                return;
+            }
+            infoEntry.activateCaret();
+        },
+
         blur: function() {
             var infoEntry = $(this).data('autoformat');
             if (!infoEntry) {
@@ -200,6 +243,15 @@
             }
             infoEntry.hidePrompt();
         },
+
+        blurExtra: function() {
+            var infoEntry = $(this).data('autoformat');
+            if (!infoEntry) {
+                return;
+            }
+            infoEntry.deactivateCaret();
+        },
+
         paste: function(event) {
             var infoEntry = $(this).data('autoformat');
             if (!infoEntry) {
@@ -221,6 +273,14 @@
                     }
                 };
             })(), 10);
+        },
+
+        click: function() {
+            var infoEntry = $(this).data('autoformat');
+            if (!infoEntry) {
+                return;
+            }
+            infoEntry.activateCaret();
         }
     };
 
@@ -242,12 +302,18 @@
         this.inputCache = [];
         this._pasteMonitorHandler = null;
         this._cutMonitorHandler = null;
+        this._caretMonitorHandler = null;
+        this._caretBlinkStatus = false;
 
         this.mutex1 = false;
 
         //UI components references
         this.ui_prompt = null;
         this.ui_measure = null;
+        this.ui_renderingComponent = null;
+        this.ui_caretBlink = null;
+
+        this.caretBlinkLeftPatch = 0;
     }
 
     $.extend(AutoFormatInfoEntry.prototype, {
@@ -299,6 +365,10 @@
                 range.moveEnd('character', pos);
                 range.moveStart('character', pos);
                 range.select();
+            }
+
+            if(this.settings['deluxe']){
+                this.activateCaret(pos);
             }
         },
 
@@ -562,7 +632,7 @@
             this._valueBeforeCut = this.$element.val();
             this.groupSelectionRemove(selection, false); //straighten cache first regardless of repsentation change
 
-            //since we dont know when the browser's behaviour will complete the cut operation, we have to poll the current value
+            //since we don't know when the browser's behaviour will complete the cut operation, we have to poll the current value
             // and compare it with the value last seen ('this._valueBeforeCut')
             // after the value is changed, we are sure that the cut operation is fulfilled(content went to the clipboard), then
             // we can synchronize the value with the inputCache
@@ -714,6 +784,9 @@
         //UI manipulation
         displayCache : function(){
             this.$element.val(this.calculateCachePresentation());
+            if(this.settings['deluxe']){
+                this.ui_renderingComponent.html((this.calculateCacheDeluxePresentation()));
+            }
             this.updatePatternPrompt();
         },
         calculateCachePresentation : function(){
@@ -724,24 +797,34 @@
             return output;
         },
 
+        calculateCacheDeluxePresentation : function(boundary){
+            if(boundary === undefined){
+                boundary = this.inputCache.length;
+            }
+            return this.constructEntriesPresentation(this.inputCache, 0 , boundary);
+        },
+
         updatePatternPrompt : function(){
             var inputText = this.$element.val();
+            var output = this.constructEntriesPresentation(this.template, inputText.length, this.template.length);
+
+            this.ui_prompt.css('left', this.measureTextWidth( inputText ) + 'px');
+            this.ui_prompt.html( output );
+        },
+
+        constructEntriesPresentation: function(arr, from, to){
             var output = '';
-
-            var templateOutputPoint = inputText.length;
-
-            for(var i = templateOutputPoint; i < this.template.length; i ++){
-                var templateEntry = this.template[i], symbol, style = this.settings['css_prompt_mask'];
-                if(templateEntry.type == 'L'){
-                    symbol = escapeHTMLEntities(templateEntry.value) ;
-                    style = this.settings['css_prompt_label'];
+            for(; from < to; from ++){
+                var entry = arr[from], symbol, style = this.settings['css_entry_mask'];
+                if(entry.type == 'L'){
+                    symbol = escapeHTMLEntities(entry.value) ;
+                    style = this.settings['css_entry_label'];
                 }else{
-                    symbol = charSet[templateEntry.type];
+                    symbol = charSet[entry.type] || entry.value;
                 }
                 output += '<span class="' + style + '">' + symbol + '</span>';
             }
-            this.ui_prompt.css('left', this.measureTextWidth( escapeHTMLEntities(inputText) ) + 'px');
-            this.ui_prompt.html( output );
+            return output;
         },
 
         measureTextWidth : function(text){
@@ -756,6 +839,37 @@
 
         hidePrompt : function(){
             this.ui_prompt.hide();
+        },
+
+        activateCaret: function(position){
+            this.deactivateCaret();
+            this.updateBlinkPosition(position);
+            var func = (function(infoEntry){
+                return function(){
+                    infoEntry._caretBlinkStatus = !infoEntry._caretBlinkStatus;
+                    infoEntry.ui_caretBlink.css('visibility', infoEntry._caretBlinkStatus ? 'visible' : 'hidden');
+                }
+            })(this);
+
+            this._caretMonitorHandler = window.setInterval(func, BLINK_INTERVAL);
+            func();
+        },
+
+        deactivateCaret: function(){
+            if(this._caretMonitorHandler == null){
+                return;
+            }
+            window.clearInterval(this._caretMonitorHandler);
+            this.ui_caretBlink.css('visibility', 'hidden');
+            this._caretBlinkStatus = false;
+        },
+
+        updateBlinkPosition: function(position){
+            if(position === undefined){
+                position = this.getCaretPosition();
+            }
+            var portionToMeasure = this.calculateCacheDeluxePresentation(position);
+            this.ui_caretBlink.css('left', this.caretBlinkLeftPatch + this.measureTextWidth( portionToMeasure ) + 'px');
         }
     });
 

@@ -12,6 +12,13 @@
         .autoformat_prompt{
             color: #dcdcdc;
         }
+        .autoformat_input_text{
+            color: green;
+        }
+        .autoformat_input_text .autoformat_prompt_label{
+            color: #dc143c;
+            font-family: "'Courier New'";
+        }
     </style>
     <script src="http://code.jquery.com/jquery-1.6.4.js" language="JavaScript" type="text/javascript"></script>
     <script src="../src/autoformat.js" language="JavaScript" type="text/javascript"></script>
@@ -19,7 +26,8 @@
     <script language="JavaScript" type="text/javascript">
 
          function initialize(){
-            $('input').autoformat('if###else##-####or');
+             $('label[title="1st"] input').autoformat('if###else##-####or');
+             $('label[title="2nd"] input').autoformat({pattern: 'if###else##-####or', deluxe: true});
          }
 
     $(document).ready(initialize);
@@ -28,7 +36,11 @@
 <body>
 
 <div class="paragraph">
-    <label>
+    <label title="1st">
+        <input type="text" size="20" value=""/>
+    </label>
+
+     <label title="2nd">
         <input type="text" size="20" value=""/>
     </label>
 </div>
