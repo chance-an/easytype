@@ -104,13 +104,18 @@
                     position: 'relative'
                 });
         var originalBackground = $element.css('background-color');
-        $element.wrap($div).css({
-            'background-color' : 'transparent',
-            position: 'relative',
-            'ime-mode': 'disabled'
-        });
+        $element.wrap($div);
         $div = $element.parent(); //strange, the wrapping div is not $div any more ... -_-!
         $div.css('background-color', originalBackground);
+        $.each(['margin-left', 'margin-top', 'margin-left', 'margin-right', 'background-color'], function(i , v){
+            $div.css(v, $element.css(v));
+        });
+        $element.css({
+            'background-color' : 'transparent',
+            position: 'relative',
+            'ime-mode': 'disabled',
+            margin: '0px'
+        });
 
         var zIndex = (function($e){
            var zIndex;
