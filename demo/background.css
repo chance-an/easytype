@@ -10,7 +10,7 @@ body{
 }
 #background canvas{
     position: absolute;
-    border: 1px solid black;
+    /*border: 1px solid black;*/
     left: 0;
     top: 50px;
 }
