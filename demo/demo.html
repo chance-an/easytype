@@ -8,7 +8,7 @@
             width: 100%;
             display: table;
             text-align: center;
-            margin: 0em;
+            margin: 0;
         }
         .autoformat_prompt{
             color: #dcdcdc;
@@ -24,6 +24,7 @@
     <script src="http://code.jquery.com/jquery-1.6.4.js" language="JavaScript" type="text/javascript"></script>
     <script src="bezier_spline.js" language="JavaScript" type="text/javascript"></script>
     <script src="background-min.js" language="JavaScript" type="text/javascript"></script>
+    <script src="frontend.js" language="JavaScript" type="text/javascript"></script>
     <!--Salute to the author of following script! -->
     <script src="http://www.cricketschirping.com/code/distribution.js" language="JavaScript" type="text/javascript"></script>
     <script src="../src/autoformat.js" language="JavaScript" type="text/javascript"></script>
@@ -46,10 +47,22 @@
 
 <div class="content">
     <div id="sidebar">
-        ah..
+        <div class="shadow"></div>
+        <div>
+            <p>Author: Changsi An</p>
+            <p>Please contact me by <a href="mailto:anchangsi@gmail.com">email</a></p>
+
+            <p>Code Base:</p>
+            <p><a href="https://github.com/chance-an/autoformat">https://github.com/chance-an/autoformat</a></p>
+        </div>
     </div>
 
     <div id="main">
+
+        <h1>Easytype Plugin for JQuery</h1>
+        <p>Switch Language: English | Chinese</p>
+        <p>Easytype plugin restricts user input to pre-defined pattern. It guides users to type legal characters and stops them typing illegal ones.</p>
+        <h2>Usage</h2>
         <label title="1st">
             <input type="text" size="20" value=""/>
         </label>
