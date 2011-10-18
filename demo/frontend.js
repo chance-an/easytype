@@ -7,11 +7,16 @@
 (function(){
     function initialize(){
         resize();
-
     }
 
     function resize(){
         adjustSideBarShadow();
+        //redraw font shadow
+        fontShadow();
+    }
+
+    function fontShadow(){
+        $('#writings p').textShadow();
     }
 
     function adjustSideBarShadow(){
@@ -19,9 +24,10 @@
         $sidebar.find('.shadow').height( $sidebar.height());
     }
 
-
     $(document).ready(function(){
 
         setTimeout(initialize, 201);
+
+        $(window).resize(resize);
     });
 })();

@@ -98,23 +98,59 @@
     })(jQuery);
 
     function deployLayout($element, autoFormatInfoEntry){
-        var $div = $('<div/>').height($element.outerHeight()).width($element.outerWidth())
+        function addCssPropertyValues(){
+            var sum = 0;
+            $.each(arguments, function(i, v){
+                if( (typeof v) === 'string'){
+                    var value = parseFloat(
+                        (v.match(/px$/) ? v: $element.css(v)).replace(/px$/, '') );
+                }else{
+                    value = v;
+                }
+                sum += value;
+            });
+            return sum + 'px';
+        }
+        var $div = $('<div/>')
                 .css({
                     display: $element.css('display'),
                     position: 'relative'
                 });
         var originalBackground = $element.css('background-color');
+        var originalSize = {
+            left: addCssPropertyValues('padding-left'),
+            right: addCssPropertyValues('padding-right'),
+            top: addCssPropertyValues('padding-top'),
+            bottom: addCssPropertyValues('padding-bottom'),
+            height: addCssPropertyValues($element.height(), 'border-top-width', 'border-top-width'),
+            width: addCssPropertyValues($element.width(), 'border-left-width', 'border-right-width')
+        };
+
         $element.wrap($div);
         $div = $element.parent(); //strange, the wrapping div is not $div any more ... -_-!
+
         $div.css('background-color', originalBackground);
-        $.each(['margin-left', 'margin-top', 'margin-left', 'margin-right', 'background-color'], function(i , v){
+        $.each(['margin-left', 'margin-top', 'margin-left', 'margin-right', 'background-color',
+            'border-left-style', 'border-right-style', 'border-top-style', 'border-bottom-style',
+            'border-left-width', 'border-right-width', 'border-top-width', 'border-bottom-width',
+            'border-left-color', 'border-right-color', 'border-top-color', 'border-bottom-color',
+            'line-height', 'font-size'], function(i , v){
             $div.css(v, $element.css(v));
         });
+        $div.css('padding-left', originalSize.left);
+        $div.css('padding-right', originalSize.right);
+        $div.css('padding-top', originalSize.top);
+        $div.css('padding-bottom', originalSize.bottom);
+
+        $div.height(originalSize.height).width(originalSize.width);
         $element.css({
             'background-color' : 'transparent',
             position: 'relative',
             'ime-mode': 'disabled',
-            margin: '0px'
+            margin: '0px',
+            'border-width': '0px',
+            'border-style': 'none',
+            'padding': 0
         });
 
         var zIndex = (function($e){
@@ -133,15 +169,6 @@
             zIndex--;
         }
 
-        function addCssPropertyValues(){
-            var sum = 0;
-            $.each(arguments, function(i, v){
-                var value = parseFloat($element.css(v).replace(/px$/, ''));
-                sum += isNaN(value) ? 0 : value;
-            });
-            return sum + 'px';
-        }
-
         autoFormatInfoEntry.ui_measure =
             (autoFormatInfoEntry.ui_prompt = $('<div></div>').css({
                 'font-size': $element.css('font-size'),
@@ -149,13 +176,14 @@
                 position : 'absolute',
                 left: '0px',
                 top: '0px',
+                bottom: '0px',
                 'z-index' : zIndex,
-                'padding-top': addCssPropertyValues('padding-top', 'margin-top', 'border-top-width'),
-                'padding-left': addCssPropertyValues('padding-left', 'margin-left', 'border-left-width'),
-                'padding-right': addCssPropertyValues('padding-right', 'margin-right', 'border-right-width'),
-                'padding-bottom': addCssPropertyValues('padding-bottom', 'margin-bottom', 'border-bottom-width')
+                'padding-top': originalSize.top,
+                'padding-left': originalSize.left,
+                'padding-right': originalSize.right,
+                'padding-bottom': originalSize.bottom
             }).appendTo($div))
-        .clone().css(
+            .clone().css(
             {
                 visibility: 'hidden',
                 padding: '0px'
