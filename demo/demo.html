@@ -26,7 +26,8 @@
     </style>
     <script src="http://code.jquery.com/jquery-1.6.4.js" language="JavaScript" type="text/javascript"></script>
     <script src="bezier_spline.js" language="JavaScript" type="text/javascript"></script>
-    <script src="background-min.js" language="JavaScript" type="text/javascript"></script>
+    <!--<script src="background-min.js" language="JavaScript" type="text/javascript"></script>-->
+    <script src="background.js" language="JavaScript" type="text/javascript"></script>
     <script src="frontend.js" language="JavaScript" type="text/javascript"></script>
     <script src="jquery.textshadow.js" language="JavaScript" type="text/javascript"></script>
     <!--Salute to the author of following script! -->
@@ -39,6 +40,8 @@
         function initialize() {
             $('label[title="1st"] input').autoformat('if###else##-####or');
             $('label[title="2nd"] input').autoformat({pattern: 'if###else##-####or', deluxe: true});
+
+            $('#phone_number').autoformat('(###) ###-####');
         }
 
         $(document).ready(initialize);
@@ -75,7 +78,7 @@
 
             <h2>Usage</h2>
 
-            <p>EasyType defines a simple convention for a mask pattern, which consists of masks and fixed text
+            <p>Easytype defines a simple convention for a mask pattern, which consists of masks and fixed text
                 fragments. For masks, <strong>#</strong> is for numbers, <strong>$</strong> could be for text
                 (technically an alpha-numeric value), any other character is taken literally as a fixed text fragment.
             </p>
@@ -90,13 +93,34 @@
             </uL>
             <p>etc..</p>
 
-            <p>Form creator provides the desired mask for the input, and the javascript implementation ensures that the
-            input follows the formatting, adding characters where needed "as you type". </p>
+            <p>Before Easytype plugin is enabled, <a href="#todo">the code</a> for the plugin must be imported first. Usually, it appears after the importation of JQuery library.</p>
+            <pre><code id='c1'></code></pre>
+
+            <p>To apply a pattern to an input control, after acquiring that input control using JQuery selector, simply call <code>autoformat</code> method and toss over the pattern you need.</p>
+            <h3>Example:</h3>
+            <pre><code>$('input[id="phone_number"]').autoformat('(###) ###-####');</code></pre>
+
+            <h3>Try it now!</h3>
+            <div class="demo">
+                <label for="phone_number">Phone Number:</label> <input id="phone_number" type="text" size="20" value=""/>
+            </div>
+            <p>(Note: you can only type numeric values in this example!)</p>
 
             <h2>Features</h2>
+            <p>
+                Colorful rendering!
+            </p>
 
             <p>
                 Copy & Paste are made easy!
+            </p>
+
+            <p>
+                Ubobstusive to the original layout
+            </p>
+
+            <p>
+                Get the text of the input control just as usual.
             </p>
 
             <label title="1st">

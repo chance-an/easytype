@@ -325,8 +325,10 @@
         return event.altKey || event.ctrlKey || event.metaKey;
     }
     function escapeHTMLEntities(value){
-        //todo
-        return value;
+        var div = document.createElement('div');
+        var text = document.createTextNode(value);
+        div.appendChild(text);
+        return div.innerHTML.replace(/ /g, '&nbsp;');
     }
 
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

@@ -7,6 +7,8 @@
 (function(){
     function initialize(){
         resize();
+
+        $('#c1').text('<script src="http://code.jquery.com/jquery-1.6.4.js" type="text/javascript"></script>\n<script src="{path_to_the_plugin}/autoformat.js" type="text/javascript"></script>');
     }
 
     function resize(){
@@ -16,7 +18,7 @@
     }
 
     function fontShadow(){
-        $('#writings p').textShadow();
+        $('#writings p, h2, h3').textShadow();
     }
 
     function adjustSideBarShadow(){
