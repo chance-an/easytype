@@ -3,6 +3,7 @@ body{
     padding: 0;
     background-color: #7bce54;
     border: 0;
+    font-family: "Lucida Grande","Lucida Sans Unicode",Helvetica,Arial,sans-serif !important
 
 }
 
@@ -13,7 +14,6 @@ body{
 }
 #background canvas{
     position: absolute;
-    /*border: 1px solid black;*/
     left: 0;
     top: 50px;
 }

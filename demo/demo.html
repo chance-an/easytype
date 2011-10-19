@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Auto Format Dev</title>
+    <title>EasyType Dev</title>
     <link href="background.css" media="screen" type="text/css" rel="stylesheet" charset="UTF-8" />
     <style type="text/css" media="screen">
         div.content{
@@ -63,6 +63,17 @@
         <p>Switch Language: English | Chinese</p>
         <p>Easytype plugin restricts user input to pre-defined pattern. It guides users to type legal characters and prevents them typing illegal ones.</p>
         <h2>Usage</h2>
+        <p>EasyType defines a simple convention for a mask pattern, which consists of masks and labels. That is, <strong>#</strong> is for numbers, <strong>$</strong> could be for text (technically an alpha-numeric value), any other character is taken literally as a fixed text fragment.
+
+<p>Examples:
+
+<ul><li>A Social Security Number mask: ###-##-####.</li><li>A US phone mask: could be (###) ###-####.</li><li>A date : ##/##/####</li></uL>
+etc..</p>
+
+Form creator provides the desired mask for the input, and the javascript implementation ensures that the input follows the formatting, adding characters where needed "as you type". </p>
+
+        <h2>Features</h2>
+
         <label title="1st">
             <input type="text" size="20" value=""/>
         </label>
