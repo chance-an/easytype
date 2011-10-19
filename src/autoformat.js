@@ -728,9 +728,14 @@
             if(preserveTrailingEntry === undefined){
                 preserveTrailingEntry = true;
             }
-            var templateMatchPosition = caret, templateFragment, inputQueueElement, i;
+            var templateMatchPosition = caret, templateFragment, inputQueueElement, i,
+                    templateEntry = this.getTemplateEntry(templateMatchPosition);
+            //Don't cut the fixed text fragment in the middle
+            if(inputQueue.length == 0 && templateEntry.type == 'L' && templateEntry.order != 0){
+                templateMatchPosition = templateEntry.templateFragment.getLastEntry().order + 1;
+            }
             while (inputQueue.length) {
-                var templateEntry = this.getTemplateEntry(templateMatchPosition);
+                templateEntry = this.getTemplateEntry(templateMatchPosition);
                 if (templateEntry.type == 'EOF') { // reach the end of the template
                     break;
                 }
