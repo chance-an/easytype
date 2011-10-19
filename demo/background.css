@@ -3,8 +3,7 @@ body{
     padding: 0;
     background-color: #7bce54;
     border: 0;
-    font-family: "Lucida Grande","Lucida Sans Unicode",Helvetica,Arial,sans-serif !important
-
+    font-family: Helvetica, futura, "'Courier New'", Arial, sans-serif;
 }
 
 #background{
@@ -39,7 +38,7 @@ body{
     width: 10px;
     position: absolute;
     left: -10px;
-    top: 0px;
+    top: 0;
 }
 
 head { height: 100%; }
@@ -49,4 +48,58 @@ body { min-height: 100%; }
     margin-top: 0.5em;
     width: 70%;
     float:right;
+    text-align: left;
+}
+
+#writings{
+    margin: 2em auto;
+    font-size: 1.5em;
+    width: 40em;
+}
+
+#writings p{
+    color:white;
+    text-shadow: 1px 2px 3px black;
+}
+
+#writings ul{
+    color:white;
+    text-shadow: 1px 1px 2px black;
+}
+
+#writings h1{
+    text-align: center;
+     color: #BBF599;
+    text-shadow: 1px 3px 10px #153900;
+    font-size: 2.1em;
+}
+
+#writings h2{
+    text-align: left;
+    padding-left: 1em;
+    font-size: 1.5em;
+    color: #BBF599;
+    text-shadow: 1px 3px 7px #153900;
+}
+#writings h3{
+    font-size: 1em;
+    color: #BBF599;
+    text-shadow: 1px 2px 3px #153900;
+}
+
+#writings p strong{
+    color: #55E600;
+}
+
+#writings code{
+    padding: 2px;
+    text-shadow: 0 0 0;
+    border: 1px inset #DDFACC;
+    background-color: OldLace;
+    color: #EB6933;
+}
+
+#writings ul span{
+    width: 15em;
+    display: inline-block;
 }

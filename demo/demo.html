@@ -2,21 +2,24 @@
 <html>
 <head>
     <title>EasyType Dev</title>
-    <link href="background.css" media="screen" type="text/css" rel="stylesheet" charset="UTF-8" />
+    <link href="background.css" media="screen" type="text/css" rel="stylesheet" charset="UTF-8"/>
     <style type="text/css" media="screen">
-        div.content{
+        div.content {
             width: 100%;
             display: table;
             text-align: center;
             margin: 0;
         }
-        .autoformat_prompt{
+
+        .autoformat_prompt {
             color: #dcdcdc;
         }
-        .autoformat_input_text{
+
+        .autoformat_input_text {
             color: green;
         }
-        .autoformat_input_text .autoformat_prompt_label{
+
+        .autoformat_input_text .autoformat_prompt_label {
             color: #dc143c;
             font-family: "'Courier New'";
         }
@@ -25,16 +28,18 @@
     <script src="bezier_spline.js" language="JavaScript" type="text/javascript"></script>
     <script src="background-min.js" language="JavaScript" type="text/javascript"></script>
     <script src="frontend.js" language="JavaScript" type="text/javascript"></script>
+    <script src="jquery.textshadow.js" language="JavaScript" type="text/javascript"></script>
     <!--Salute to the author of following script! -->
-    <script src="http://www.cricketschirping.com/code/distribution.js" language="JavaScript" type="text/javascript"></script>
+    <script src="http://www.cricketschirping.com/code/distribution.js" language="JavaScript"
+            type="text/javascript"></script>
     <script src="../src/autoformat.js" language="JavaScript" type="text/javascript"></script>
 
     <script language="JavaScript" type="text/javascript">
 
-         function initialize(){
-             $('label[title="1st"] input').autoformat('if###else##-####or');
-             $('label[title="2nd"] input').autoformat({pattern: 'if###else##-####or', deluxe: true});
-         }
+        function initialize() {
+//            $('label[title="1st"] input').autoformat('if###else##-####or');
+            $('label[title="2nd"] input').autoformat({pattern: 'if###else##-####or', deluxe: true});
+        }
 
         $(document).ready(initialize);
     </script>
@@ -50,37 +55,59 @@
         <div class="shadow"></div>
         <div>
             <p>Author: Changsi An</p>
+
             <p>Please contact me by <a href="mailto:anchangsi@gmail.com">email</a></p>
 
             <p>Code Base:</p>
+
             <p><a href="https://github.com/chance-an/autoformat">https://github.com/chance-an/autoformat</a></p>
         </div>
     </div>
 
     <div id="main">
+        <div id="writings">
+            <h1>Easytype Plugin for JQuery</h1>
 
         <h1>Easytype Plugin for JQuery</h1>
         <p>Switch Language: English | Chinese</p>
         <p>Easytype plugin restricts user input to pre-defined pattern. It guides users to type legal characters and prevents them typing illegal ones.</p>
-        <h2>Usage</h2>
-        <p>EasyType defines a simple convention for a mask pattern, which consists of masks and labels. That is, <strong>#</strong> is for numbers, <strong>$</strong> could be for text (technically an alpha-numeric value), any other character is taken literally as a fixed text fragment.
+            <p>Easytype plugin restricts user's input to a pre-defined pattern. It guides users to type legal characters
+                only and ensures that the input follows the format.</p>
 
-<p>Examples:
+            <h2>Usage</h2>
 
-<ul><li>A Social Security Number mask: ###-##-####.</li><li>A US phone mask: could be (###) ###-####.</li><li>A date : ##/##/####</li></uL>
-etc..</p>
+            <p>EasyType defines a simple convention for a mask pattern, which consists of masks and fixed text
+                fragments. For masks, <strong>#</strong> is for numbers, <strong>$</strong> could be for text
+                (technically an alpha-numeric value), any other character is taken literally as a fixed text fragment.
+            </p>
 
-Form creator provides the desired mask for the input, and the javascript implementation ensures that the input follows the formatting, adding characters where needed "as you type". </p>
+            <h3>Examples:</h3>
+            <ul>
+                <li><span>A Social Security Number mask: </span> <code>###-##-####</code>. </li>
+                <li><span>A US phone mask: could be </span> <code>(###) ###-####</code>. </li>
+                <li><span>A date:</span> <code>##/##/####</code>. </li>
+                <li><span>Software Serial Number:</span> <code>$$$$-$$$$-$$$$-$$$$</code>. </li>
+                <li><span>Any pattern you need!:</span> <code>If(####){$$$$$$}eLsE{$$$$$$}</code>. </li>
+            </uL>
+            <p>etc..</p>
 
-        <h2>Features</h2>
+            <p>Form creator provides the desired mask for the input, and the javascript implementation ensures that the
+            input follows the formatting, adding characters where needed "as you type". </p>
 
-        <label title="1st">
-            <input type="text" size="20" value=""/>
-        </label>
+            <h2>Features</h2>
 
-         <label title="2nd">
-            <input type="text" size="20" value=""/>
-        </label>
+            <p>
+                Copy & Paste are made easy!
+            </p>
+
+            <label title="1st">
+                <input type="text" size="20" value=""/>
+            </label>
+
+            <label title="2nd">
+                <input type="text" size="20" value=""/>
+            </label>
+        </div>
     </div>
 </div>
 
