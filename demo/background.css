@@ -53,13 +53,13 @@ body { min-height: 100%; }
 
 #writings{
     margin: 1em auto;
-    font-size: 1.2em;
-    width: 40em;
+    font-size: 1.4em;
+    width: 44em;
 }
 
 #writings p{
     color:white;
-    text-shadow: 1px 2px 3px black;
+    text-shadow: 1px 1px 2px black;
 }
 
 #writings ul{
@@ -77,7 +77,7 @@ body { min-height: 100%; }
 
 #writings h2{
     text-align: left;
-    padding: 0.3em 1em;
+    padding: 1em 1em;
     font-size: 1.5em;
     color: #BBF599;
     text-shadow: 1px 3px 7px #153900;
@@ -99,11 +99,16 @@ body { min-height: 100%; }
     text-shadow: 0 0 0;
     border: 1px inset #DDFACC;
     background-color: OldLace;
-    color: #EB6933;
+    color: Crimson;
 }
 
-#writings ul span{
+#writings ul.ul1 span{
     width: 15em;
+    display: inline-block;
+}
+
+#writings ul.ul2 span{
+    width: 10em;
     display: inline-block;
 }
 
@@ -118,6 +123,11 @@ body { min-height: 100%; }
     overflow-x: scroll;
 }
 
+#writings p em{
+    color: #F9EF38;
+    font-size: 1.25em;
+}
+
 #writings div.demo{
     font-size: 1em;
     color: white;
@@ -126,4 +136,12 @@ body { min-height: 100%; }
 }
 #writings div.demo input{
     text-shadow: 0 0 0;
+}
+
+.demo p{
+    text-align: left;
+    text-shadow: 0 0 0 !important;
+    color: black!important;
+    border-style: ridge;
+    border-width: 1px 0;
 }
