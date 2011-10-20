@@ -1,0 +1,49 @@
+<project name="EasyType" default="dist" basedir=".">
+    <description>
+        This is the Easytype build file
+    </description>
+  <!-- set global properties for this build -->
+  <property name="src" location="src"/>
+  <property name="build" location="build"/>
+  <property name="dist"  location="demo"/>
+
+  <target name="init" depends="clean">
+    <!-- Create the time stamp -->
+    <tstamp/>
+  </target>
+
+  <target name="compile" depends="init" description="compile the source " >
+
+      <java jar="${build}/compiler/compiler.jar" fork="true">
+          <arg value="--js"/>
+          <arg value="${src}/easytype.js"/>
+          <arg value="--js_output_file"/>
+          <arg value="${build}/easytype-min.js"/>
+      </java>
+
+      <available property="background.js.exists" file="${dist}/background.js"/>
+
+      <antcall target="complie_other" />
+
+
+  </target>
+
+  <target name="complie_other" if="background.js.exists">
+     <java jar="${build}/compiler/compiler.jar" fork="true">
+          <arg value="--js"/>
+          <arg value="${dist}/background.js"/>
+          <arg value="--js_output_file"/>
+          <arg value="${dist}/background-min.js"/>
+      </java>
+  </target>
+
+  <target name="dist" depends="compile" description="generate the distribution" >
+
+  </target>
+
+  <target name="clean" description="clean up" >
+    <delete>
+        <fileset dir="${build}" includes="*.js"/>
+    </delete>
+  </target>
+</project>

@@ -40,10 +40,10 @@
             init : function(options) {
 
                 var settings = {
-                    css_prompt: 'autoformat_prompt',
-                    css_entry_label: 'autoformat_prompt_label',
-                    css_entry_mask: 'autoformat_prompt_mask',
-                    css_input_text: 'autoformat_input_text',
+                    css_prompt: 'easytype_prompt',
+                    css_entry_label: 'easytype_label',
+                    css_entry_mask: 'easytype_mask',
+                    css_input_text: 'easytype_input_text',
                     deluxe: false,
                     pattern: ''
                 };
@@ -85,13 +85,13 @@
 
         };
 
-        $.fn.autoformat = function(method) {
+        $.fn.easytype = function(method) {
             if (methods[method]) {
                 return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
             } else if (typeof method === 'object' || typeof method === 'string' || ! method) {
                 return methods.init.apply(this, arguments);
             } else {
-                $.error('Method ' + method + ' does not exist on jQuery.autoformat');
+                $.error('Method ' + method + ' does not exist on jQuery.Easytype');
             }
         };
 
@@ -231,6 +231,9 @@
             $elem.bind('click', eventHandlers['click']);
 
         }
+
+        $elem.parent().bind('click', eventHandlers['divClick']);
+
     }
 
     var eventHandlers = {
@@ -318,6 +321,10 @@
                 return;
             }
             infoEntry.activateCaret();
+        },
+
+        divClick: function(){
+            $(this).find('input').focus();
         }
     };
 
@@ -514,9 +521,7 @@
                     keyCode == 86 )     /* Ctrl + V*/
                     ) ||
                     (event.shiftKey && (keyCode == KEY_CODES.LEFT || /* Shift + Left*/
-                            keyCode == KEY_CODES.RIGHT )) || /* Shift + Right*/
-                    (keyCode == KEY_CODES.END ) || /* end */
-                    (keyCode == KEY_CODES.HOME ) /* home */
+                            keyCode == KEY_CODES.RIGHT ))  /* Shift + Right*/
                     )
         },
 
@@ -527,7 +532,9 @@
                 ['LEFT', 'handleLeftMovement'],
                 ['RIGHT', 'handleRightMovement'],
                 ['DELETE', 'handleDelete'],
-                ['BACKSPACE', 'handleBackspace']
+                ['BACKSPACE', 'handleBackspace'],
+                ['HOME', 'handleHome'],
+                ['END', 'handleEnd']
             ];
 
             for (var i = 0; i < actionMapping.length; i++) {
@@ -640,6 +647,17 @@
             return true;
         },
 
+        handleHome : function(event, caret){
+            this.setCaretPosition(0);
+            return 0;
+        },
+
+        handleEnd : function(event, caret){
+            caret = this.inputCache.length;
+            this.setCaretPosition(caret);
+            return caret;
+        },
+
         handlePaste: function(difference, refSelection){
             var inputQueue = this.buildActiveInputQueueAtCaret(difference.start);
             var removeCount = 0;
@@ -733,7 +751,7 @@
             var templateMatchPosition = caret, templateFragment, inputQueueElement, i,
                     templateEntry = this.getTemplateEntry(templateMatchPosition);
             //Don't cut the fixed text fragment in the middle
-            if(inputQueue.length == 0 && templateEntry.type == 'L' && templateEntry.order != 0){
+            if(inputQueue.length == 0 && templateEntry.type == 'L' && templateEntry.fragmentOrder != 0){
                 templateMatchPosition = templateEntry.templateFragment.getLastEntry().order + 1;
             }
             while (inputQueue.length) {
@@ -783,7 +801,8 @@
             while(activeInput--){
                 inputQueue.shift();
             }
-            this.fillActiveInputIntoTemplate(caret, inputQueue, true);
+            var preserveTrailingFragment = (caret != 0);
+            this.fillActiveInputIntoTemplate(caret, inputQueue, preserveTrailingFragment);
             if(updatePresentation){
                 this.displayCache();
                 this.setCaretPosition(caret);
@@ -862,9 +881,9 @@
         updatePatternPrompt : function(){
             var inputText = this.$element.val(), presentation;
             if( this.settings['deluxe'] ){
-                presentation = inputText;
-            }else{
                 presentation = this.calculateCacheDeluxePresentation();
+            }else{
+                presentation = escapeHTMLEntities(inputText);
             }
             var output = this.constructEntriesPresentation(this.template, inputText.length, this.template.length);
 
