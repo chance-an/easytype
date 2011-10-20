@@ -1,0 +1,147 @@
+body{
+    margin:  0;
+    padding: 0;
+    background-color: #7bce54;
+    border: 0;
+    font-family: Helvetica, futura, "'Courier New'", Arial, sans-serif;
+}
+
+#background{
+    background-color: #7bce54;
+    position: absolute;
+    z-index: 0;
+}
+#background canvas{
+    position: absolute;
+    left: 0;
+    top: 50px;
+}
+
+.content, .content *{
+    position: relative;
+    z-index: 1;
+}
+
+#sidebar{
+    float: right;
+    width: 30%;
+    background: #7bce54;
+    position: relative;
+    background-image: url('images/sider-bg.png');
+    background-repeat: repeat;
+
+}
+
+#sidebar .shadow{
+    background-image: url('images/shadow.png');
+    background-repeat: repeat-y;
+    width: 10px;
+    position: absolute;
+    left: -10px;
+    top: 0;
+}
+
+head { height: 100%; }
+body { min-height: 100%; }
+
+.content #main{
+    margin-top: 0.5em;
+    width: 70%;
+    float:right;
+    text-align: left;
+}
+
+#writings{
+    margin: 1em auto;
+    font-size: 1.4em;
+    width: 44em;
+}
+
+#writings p{
+    color:white;
+    text-shadow: 1px 1px 2px black;
+}
+
+#writings ul{
+    color:white;
+    text-shadow: 1px 1px 2px black;
+}
+
+#writings h1{
+    text-align: center;
+     color: #BBF599;
+    text-shadow: 1px 3px 10px #153900;
+    font-size: 2.1em;
+    margin-bottom: 1.5em;
+}
+
+#writings h2{
+    text-align: left;
+    padding: 1em 1em;
+    font-size: 1.5em;
+    color: #BBF599;
+    text-shadow: 1px 3px 7px #153900;
+    border-style: solid;
+    border-width: 1px 0;
+}
+#writings h3{
+    font-size: 1em;
+    color: #BBF599;
+    text-shadow: 1px 2px 3px #153900;
+}
+
+#writings p strong{
+    color: #55E600;
+}
+
+#writings code{
+    padding: 2px;
+    text-shadow: 0 0 0;
+    border: 1px inset #DDFACC;
+    background-color: OldLace;
+    color: Crimson;
+}
+
+#writings ul.ul1 span{
+    width: 15em;
+    display: inline-block;
+}
+
+#writings ul.ul2 span{
+    width: 10em;
+    display: inline-block;
+}
+
+#writings pre {
+    width: 100%;
+    margin: 0.5em 0;
+}
+#writings pre code{
+    width: 100%;
+    display: block;
+    padding: 1.25em 1em;
+    overflow-x: scroll;
+}
+
+#writings p em{
+    color: #F9EF38;
+    font-size: 1.25em;
+}
+
+#writings div.demo{
+    font-size: 1em;
+    color: white;
+    text-align: center;
+    margin: 0 auto;
+}
+#writings div.demo input{
+    text-shadow: 0 0 0;
+}
+
+.demo p{
+    text-align: left;
+    text-shadow: 0 0 0 !important;
+    color: black!important;
+    border-style: ridge;
+    border-width: 1px 0;
+}

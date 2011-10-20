@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>EasyType Dev</title>
+    <link href="background.css" media="screen" type="text/css" rel="stylesheet" charset="UTF-8"/>
+    <style type="text/css" media="screen">
+        div.content {
+            width: 100%;
+            display: table;
+            text-align: center;
+            margin: 0;
+        }
+
+        .easytype_prompt {
+            color: #dcdcdc;
+        }
+
+        .easytype_input_text {
+            color: green;
+        }
+
+        .easytype_input_text .easytype_label {
+            color: #dc143c;
+        }
+    </style>
+    <script src="http://code.jquery.com/jquery-1.6.4.js" language="JavaScript" type="text/javascript"></script>
+    <script src="bezier_spline.js" language="JavaScript" type="text/javascript"></script>
+    <script src="background-min.js" language="JavaScript" type="text/javascript"></script>
+    <script src="frontend.js" language="JavaScript" type="text/javascript"></script>
+    <script src="jquery.textshadow.js" language="JavaScript" type="text/javascript"></script>
+    <!--Salute to the author of following script! -->
+    <script src="http://www.cricketschirping.com/code/distribution.js" language="JavaScript"
+            type="text/javascript"></script>
+    <script src="../build/easytype-min.js" language="JavaScript" type="text/javascript"></script>
+
+    <script language="JavaScript" type="text/javascript">
+
+        function initialize() {
+            $('label[title="1st"] input').easytype('if###else##-####or');
+            $('label[title="2nd"] input').easytype({pattern: 'if###else##-####or', deluxe: true});
+
+            $('#phone_number').easytype('(###) ###-####');
+            $('#ISBN').easytype({deluxe: true, pattern:'ISBN ###-#-##-######-#'});
+            $('#SSN').easytype('###-##-####');
+            $('#Date').easytype({deluxe: true, pattern:'##/##/####'});
+            $('#Time').easytype({deluxe: true, pattern:'##:##:##'});
+//            $('#weburl').easytype({deluxe: true, pattern:'http://www.$$$$.com'});
+        }
+
+        $(document).ready(initialize);
+    </script>
+</head>
+<body>
+<div id="background">
+    <img src="images/bg.png">
+    <canvas id='drawing1' width="300" height="100"></canvas>
+</div>
+
+<div class="content">
+    <div id="sidebar">
+        <div class="shadow"></div>
+        <div>
+            <p>Author: Changsi An</p>
+
+            <p>Please contact me by <a href="mailto:anchangsi@gmail.com">email</a></p>
+
+            <p>Code Base:</p>
+
+            <p><a href="https://github.com/chance-an/easytype">https://github.com/chance-an/easytype</a></p>
+        </div>
+    </div>
+
+    <div id="main">
+        <div id="writings">
+
+            <h1>Easytype Plugin for JQuery</h1>
+
+            <p>Switch Language: English | Chinese</p>
+
+            <p>Easytype plugin restricts user's input to a pre-defined pattern. It guides users to type legal characters
+                only and ensures that the input follows the format.</p>
+
+            <h2>Usage</h2>
+
+            <p>Easytype defines a simple convention for a mask pattern, which consists of masks and fixed text
+                fragments. For masks, <strong>#</strong> is for numbers, <strong>$</strong> could be for text
+                (technically an alpha-numeric value), any other character is taken literally as a fixed text fragment.
+            </p>
+
+            <h3>Examples:</h3>
+            <ul class="ul1">
+                <li><span>A Social Security Number mask: </span> <code>###-##-####</code>.</li>
+                <li><span>A US phone mask: could be </span> <code>(###) ###-####</code>.</li>
+                <li><span>A date:</span> <code>##/##/####</code>.</li>
+                <li><span>Software Serial Number:</span> <code>$$$$-$$$$-$$$$-$$$$</code>.</li>
+                <li><span>Any pattern you need!:</span> <code>If(####){$$$$$$}eLsE{$$$$$$}</code>.</li>
+            </uL>
+            <p>etc..</p>
+
+            <p>Before Easytype plugin is enabled, <a href="#todo">the code</a> for the plugin must be imported first.
+                Usually, it appears after the importation of JQuery library.</p>
+            <pre><code id='c1'></code></pre>
+
+            <p>To apply a pattern to an input control, after acquiring that input control using JQuery selector, simply
+                call <code>easytype()</code> method and toss over the pattern you need as a string.</p>
+
+            <h3>Example:</h3>
+            <pre><code>$('#phone_number').easytype('(###) ###-####');</code></pre>
+
+            <h3>Try it now!</h3>
+
+            <div class="demo">
+                <label for="phone_number">Phone Number:</label> <input id="phone_number" type="text" size="20"
+                                                                       value=""/>
+            </div>
+            <p>(Note: you can only type numeric values in this example!)</p>
+
+            <p>To get the value of the input control, just use <code>$('#phone_number').val()</code>. Nothing changed!</p>
+            <div class="demo">
+                <label for="phone_number2">Current value of <code>$('#phone_number').val()</code> is: </label><input id="phone_number2" type="text" size="20" value=""/>
+            </div>
+
+            <h2>Features</h2>
+
+            <div>
+                <p>
+                <em>Colorful rendering!</em> To make it easier to identify mask and fixed text entries, Easytype can
+                colorize the characters differently, even within the same input control!
+            </p>
+
+            <p> To enable this feature, pass an object-type parameter when calling <code>easytype()</code> method, and
+                specify <code>deluxe</code> attribute as <code>true</code> in conjunction with <code>pattern</code> attribute
+                set to the preferred pattern. Then you have to define css style for
+                <ul class="ul2">
+                    <li><span><code>easytype_prompt</code>:</span> Style for the ghostly shadow prompt underneath the input control.</li>
+                    <li><span><code>easytype_input_text</code>:</span> Style for input text in the input control.</li>
+                    <li><span><code>easytype_label</code>:</span> Style for the fixed text fragment entries.</li>
+                    <li><span><code>easytype_mask</code>:</span> Style for the masked entries.</li>
+                </uL>
+            </p>
+                <h3>Example:</h3>
+                <pre><code id=c2></code></pre>
+                <pre><code>.easytype_prompt {
+    color: #dcdcdc;
+}
+
+.easytype_input_text {
+    color: green;
+}
+
+.easytype_input_text .easytype_label {
+    color: #dc143c;
+}
+</code></pre>
+                <pre><code>$('#ISBN').easytype({deluxe: true, pattern:'ISBN ###-#-##-######-#'});</code></pre>
+                <h3>Try it now:</h3>
+                <div class="demo">
+                    <label for="ISBN">ISBN:</label> <input id="ISBN" type="text" size="25" value=""/>
+                </div>
+                <p>Don't like the css class names? No problem, define them yourself by adding more options to the object
+                parameter of <code>easytype()</code> method</p>
+                <h3>Example:</h3>
+                <pre><code>$('#ISBN').easytype({deluxe: true, pattern:'ISBN ###-#-##-######-#',
+                    css_prompt: 'my_prompt_class',
+                    css_entry_label: 'my_label_class',
+                    css_entry_mask: 'my_mask_class',
+                    css_input_text: 'my_input_text_class'});</code></pre>
+            </div>
+            <div>
+                <p>
+                    <em>Copy & Paste are made easy!</em> Now everything is put together into one input control, you don't have to separate each
+                    component of you desired format into several input controls like before:
+                </p>
+                <div class="demo">
+                    <input id="SSN_P1" type="text" size="3" value="" maxlength="3"/>-<input id="SSN_P2" type="text" size="2" value="" maxlength="2"/>-<input id="SSN_P3" type="text" size="4" value="" maxlength="4"/>
+                    VS.<input id="SSN" type="text" size="15" value="" />
+                </div>
+                <p>Then you can just make group selection on the input control, and copy the whole string. This cannot
+                    be achieved if the information is divided into several input controls. When you paste the string back,
+                    it can still be recognized correctly! See the following screencast:</p>
+                <embed width="100%" name="plugin" src="screencasts/demo1.swf"
+                       type="application/x-shockwave-flash" bgcolor="#7bce54"></embed>
+                <p>If the text to paste contains some characters that match a fixed text fragment in
+                    the pattern, they will be recognized and merged with the pattern. If the text contains illegal
+                    characters, they will just be striped out. It's totally worry-free! See the following screencast:</p>
+                <embed width="100%" name="plugin" src="screencasts/demo2.swf"
+                       type="application/x-shockwave-flash" bgcolor="#7bce54"></embed>
+            </div>
+
+            <p>
+                <em>Unobtrusive to the original layout</em>&nbsp; Worry about Easytype plugin has modified your inputbox and might
+                jeopardize your page layout? Please don't worry. Easytype tries very hard to maintain the same layout
+                context around your inputbox. The margin and border and everything will just be kept same. Simply call
+                <code>easytype()</code> method with no extra care taken! See these examples:
+                <h3>Examples:</h3>
+                <pre><code id="c3"></code></pre>
+                <div class="demo">
+                    <p>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec pharetra, urna vitae rhoncus luctus, elit <input id="Date" type="text" size="15" value="" />tortor aliquam erat, tincidunt placerat lorem magna non quam. Nam at felis eget sapien gravida tristique. Pellentesque non lacus ligula, quis sagittis mauris. Suspendisse ante.
+                    </p>
+                </div>
+                <pre><code id="c4"></code></pre>
+                <div class="demo">
+                    <p>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec pharetra, urna vitae rhoncus luctus, elit
+                        <input id="Time" type="text" size="15" value="" style="display: block;padding: 1em 2em 3em 4em;"/>
+                    tortor aliquam erat, tincidunt placerat lorem magna non quam. Nam at felis eget sapien gravida tristique. Pellentesque non lacus ligula, quis sagittis mauris. Suspendisse ante.
+                    </p>
+                </div>
+            </p>
+
+            <p>
+                <em>No hassle typing!</em> As you might have noticed, the fixed text fragments are automatically filled
+                into the input control for convenience. However some users might be unaware of this fact and just input
+                as they do with a normal input control. This is definitely not a problem! As long as a user tries to type characters
+                that match what ghostly shadow prompt shows, they will be recognized correctly and the caret will move normally
+                just as it does with a normal input control. However, if the user decides to input a masked entry after
+                the fixed text fragment, the caret will automatically jump to the position of that entry. Please watch the
+                following demo to see how it works:
+            </p>
+
+            <embed width="100%" name="plugin" src="screencasts/demo3.swf" type="application/x-shockwave-flash" bgcolor="#7bce54"></embed>
+
+            <p>In the above demo, the user started by typing 'http://' . When the caret moved to the position at 'w',
+                he started to type 'a', so the caret jumped to the next mask entry and continued from there.</p>
+            <br/>
+            <br/>
+            <br/>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
