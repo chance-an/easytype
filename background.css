@@ -90,7 +90,7 @@ body { min-height: 100%; }
     text-shadow: 1px 2px 3px #153900;
 }
 
-#writings p strong{
+#writings p strong, #writings p a{
     color: #55E600;
 }
 
