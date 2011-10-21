@@ -25,7 +25,8 @@
     </style>
     <script src="http://code.jquery.com/jquery-1.6.4.js" language="JavaScript" type="text/javascript"></script>
     <script src="bezier_spline.js" language="JavaScript" type="text/javascript"></script>
-    <script src="background-min.js" language="JavaScript" type="text/javascript"></script>
+    <!--<script src="background-min.js" language="JavaScript" type="text/javascript"></script>-->
+    <script src="background.js" language="JavaScript" type="text/javascript"></script>
     <script src="frontend.js" language="JavaScript" type="text/javascript"></script>
     <script src="jquery.textshadow.js" language="JavaScript" type="text/javascript"></script>
     <!--Salute to the author of following script! -->
@@ -34,6 +35,10 @@
     <script src="../build/easytype-min.js" language="JavaScript" type="text/javascript"></script>
 
     <script language="JavaScript" type="text/javascript">
+
+        function _(text){
+            return text;
+        }
 
         function initialize() {
             $('label[title="1st"] input').easytype('if###else##-####or');
@@ -60,6 +65,11 @@
     <div id="sidebar">
         <div class="shadow"></div>
         <div>
+            <div id="animationStatus">
+                <p>Background rendering FPS: <span id="FPS"></span></p>
+                <p id="running_low" style="display: none">Your machine was running slowly on rendering background animation. <br/> The animation was just disabled.</p>
+            </div>
+
             <p>Author: Changsi An</p>
 
             <p>Please contact me by <a href="mailto:anchangsi@gmail.com">email</a></p>
@@ -75,7 +85,7 @@
 
             <h1>Easytype Plugin for JQuery</h1>
 
-            <p>Switch Language: English | Chinese</p>
+            <!--<p>Switch Language: English | Chinese</p>-->
 
             <p>Easytype plugin restricts user's input to a pre-defined pattern. It guides users to type legal characters
                 only and ensures that the input follows the format.</p>
