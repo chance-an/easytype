@@ -120,7 +120,7 @@ body { min-height: 100%; }
 }
 
 #writings pre {
-    width: 100%;
+    width: 95%;
     margin: 0.5em 0;
 }
 #writings pre code{

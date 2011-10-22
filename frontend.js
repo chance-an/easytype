@@ -24,7 +24,7 @@
     }
 
     function fontShadow(){
-        $('#writings p, h2, h3').textShadow();
+        $('#writings p, h2, h3, #sidebar .content').textShadow();
     }
 
     function phoneNumber2ValueMaintain(){
