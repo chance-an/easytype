@@ -25,11 +25,9 @@ body{
 #sidebar{
     float: right;
     width: 30%;
-    background: #7bce54;
     position: relative;
     background-image: url('images/sider-bg.png');
     background-repeat: repeat;
-
 }
 
 #sidebar .shadow{
@@ -39,6 +37,15 @@ body{
     position: absolute;
     left: -10px;
     top: 0;
+}
+
+#sidebar .content{
+    color: #D8ECD7;
+    text-shadow: 1px 2px 8px #7D5945;
+}
+
+#running_low{
+    color: #dc143c;
 }
 
 head { height: 100%; }
@@ -90,7 +97,7 @@ body { min-height: 100%; }
     text-shadow: 1px 2px 3px #153900;
 }
 
-#writings p strong, #writings p a{
+#writings p strong, #writings p a, #sidebar .content a{
     color: #55E600;
 }
 
@@ -144,4 +151,8 @@ body { min-height: 100%; }
     color: black!important;
     border-style: ridge;
     border-width: 1px 0;
+}
+
+#footer{
+    text-align: center
 }

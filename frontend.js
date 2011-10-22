@@ -36,7 +36,7 @@
     function adjustSideBarShadow(){
         var height = $('body').height();
         var $sidebar = $('#sidebar');
-        $sidebar.height(height).css('opacity', 0.6).css('height', height);
+        $sidebar.height(height).css('height', height);
         $sidebar.find('.shadow').height( $sidebar.height());
     }
 
