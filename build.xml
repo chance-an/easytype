@@ -46,6 +46,14 @@
   </target>
 
     <target name="updateDocsite">
+
+        <copy todir="${DOC_SITE_PATH}">
+            <fileset dir="${dist}" >
+                <include name="**/*"/>
+                <exclude name="demo.html"/>
+                <exclude name=".gitignore"/>
+            </fileset>
+        </copy>
         <copy file="${dist}/demo.html" tofile="${DOC_SITE_PATH}/index.html" overwrite="true"/>
         <replace file="${DOC_SITE_PATH}/index.html" value="src=&quot;${PUBLISH_LIBRARY_FILE}&quot;">
             <replacetoken><![CDATA[src="../build/easytype-min.js"]]></replacetoken>
