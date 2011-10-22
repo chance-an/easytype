@@ -7,6 +7,8 @@
   <property name="build" location="build"/>
   <property name="dist"  location="demo"/>
 
+  <property  file="build.properties" />
+
   <target name="init" depends="clean">
     <!-- Create the time stamp -->
     <tstamp/>
@@ -39,7 +41,16 @@
 
   <target name="dist" depends="compile" description="generate the distribution" >
 
+      <antcall target="updateDocsite" inheritall="true"/>
+
   </target>
+
+    <target name="updateDocsite">
+        <copy file="${dist}/demo.html" tofile="${DOC_SITE_PATH}/index.html" overwrite="true"/>
+        <replace file="${DOC_SITE_PATH}/index.html" value="src=&quot;${PUBLISH_LIBRARY_FILE}&quot;">
+            <replacetoken><![CDATA[src="../build/easytype-min.js"]]></replacetoken>
+        </replace>
+    </target>
 
   <target name="clean" description="clean up" >
     <delete>
