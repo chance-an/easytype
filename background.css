@@ -40,8 +40,27 @@ body{
 }
 
 #sidebar .content{
-    color: #D8ECD7;
+    color:#F0F0F0;
     text-shadow: 1px 2px 8px #7D5945;
+}
+
+#sidebar .content div, #sidebar .content hr{
+    margin: 1em;
+}
+
+#sidebar .content div{
+    border-width: 1px 0 0;
+    border-style: solid;
+    border-color: #BBF599;
+}
+
+#feedback{
+    background-color: #7bce54;
+    padding: 0.5em;
+    text-decoration: none;
+    color: white!important;
+    border: 1px solid white;
+    border-color: white gray gray white;
 }
 
 #running_low{
