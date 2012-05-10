@@ -23,7 +23,8 @@
         END: 35,
         HOME: 36,
         DELETE: 46,
-        BACKSPACE: 8
+        BACKSPACE: 8,
+        TAB: 9
     };
 
     var MONITOR_CHECK_TIMES = 10;
@@ -522,7 +523,8 @@
                     ) ||
                     (event.shiftKey && (keyCode == KEY_CODES.LEFT || /* Shift + Left*/
                             keyCode == KEY_CODES.RIGHT ))  /* Shift + Right*/
-                    )
+                    || keyCode == KEY_CODES.TAB /* TAB */
+                )
         },
 
         handleFunctionalKey : function(event) {
@@ -532,9 +534,7 @@
                 ['LEFT', 'handleLeftMovement'],
                 ['RIGHT', 'handleRightMovement'],
                 ['DELETE', 'handleDelete'],
-                ['BACKSPACE', 'handleBackspace'],
-                ['HOME', 'handleHome'],
-                ['END', 'handleEnd']
+                ['BACKSPACE', 'handleBackspace']
             ];
 
             for (var i = 0; i < actionMapping.length; i++) {
@@ -647,17 +647,6 @@
             return true;
         },
 
-        handleHome : function(event, caret){
-            this.setCaretPosition(0);
-            return 0;
-        },
-
-        handleEnd : function(event, caret){
-            caret = this.inputCache.length;
-            this.setCaretPosition(caret);
-            return caret;
-        },
-
         handlePaste: function(difference, refSelection){
             var inputQueue = this.buildActiveInputQueueAtCaret(difference.start);
             var removeCount = 0;
@@ -688,7 +677,7 @@
                 return;
             }
             this._valueBeforeCut = this.$element.val();
-            this.groupSelectionRemove(selection, false); //straighten cache first regardless of repsentation change
+            this.groupSelectionRemove(selection, false); //straighten cache first regardless of representation change
 
             //since we don't know when the browser's behaviour will complete the cut operation, we have to poll the current value
             // and compare it with the value last seen ('this._valueBeforeCut')
