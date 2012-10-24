@@ -1,3 +1,7 @@
+LICENSE
+=======
+[LGPL](http://www.gnu.org/licenses/lgpl.html)
+
 Introduction
 ============
 Easytype plugin restricts user's input to a pre-defined pattern. It guides users to type legal characters only and
@@ -40,11 +44,12 @@ importation of JQuery library.
 ```
 
 To apply a pattern to an input control, after acquiring the input control using JQuery selector, simply call easytype()
-method and toss over the pattern you need as a string.
+method and toss over the desired pattern as a string.
 
 Example
 -------
 
-> $('#phone_number').easytype('(###) ###-####');
-
+```javascript
+$('#phone_number').easytype('(###) ###-####');
+```
 To get the value of the input control, still use $('#phone_number').val(). Nothing changed!
