@@ -5,45 +5,46 @@ ensures that the input follows the format.
 
 Please visit following website for details:
 
-                                    http://chance-an.github.com/autoformat
+[http://chance-an.github.com/easytype](http://chance-an.github.com/easytype)
 
-//*******************************************************************************************************************//
-//                                                 Download                                                          //
-//*******************************************************************************************************************//
+Download
+========
 
 Download it from:
-https://github.com/downloads/chance-an/autoformat/easytype-min.js
+https://github.com/downloads/chance-an/easytype/easytype-min.js
 
-//*******************************************************************************************************************//
-//                                                    Usage                                                          //
-//*******************************************************************************************************************//
+Usage
+=====
 
 Easytype defines a simple convention for a mask pattern, which consists of masks and fixed text fragments. For masks,
-# is for numbers, $ could be for text (technically an alpha-numeric value), any other character is taken literally as a
+\# is for numbers, $ could be for text (technically an alpha-numeric value), any other character is taken literally as a
 fixed text fragment.
 
-Examples:
+Examples
+--------
 
-    A Social Security Number mask: ###-##-####.
-    A US phone mask: could be (###) ###-####.
-    A date: ##/##/####.
-    Software Serial Number: $$$$-$$$$-$$$$-$$$$.
-    Any pattern you need!: If(####){$$$$$$}eLsE{$$$$$$}.
+* A Social Security Number mask: ###-##-####.
+* A US phone mask: could be (###) ###-####.
+* A date: ##/##/####.
+* Software Serial Number: $$$$-$$$$-$$$$-$$$$.
+* Any pattern you need!: If(####){$$$$$$}eLsE{$$$$$$}.
 
 etc..
 
 Before Easytype plugin is enabled, the code for the plugin must be imported first. Usually, it appears after the
 importation of JQuery library.
 
+```html
 <script src="http://code.jquery.com/jquery-1.6.4.js" type="text/javascript"></script>
 <script src="{path_to_the_plugin}/easytype-min.js" type="text/javascript"></script>
+```
 
-To apply a pattern to an input control, after acquiring that input control using JQuery selector, simply call easytype()
+To apply a pattern to an input control, after acquiring the input control using JQuery selector, simply call easytype()
 method and toss over the pattern you need as a string.
 
-Example:
+Example
+-------
 
-$('#phone_number').easytype('(###) ###-####');
+> $('#phone_number').easytype('(###) ###-####');
 
-To get the value of the input control, just use $('#phone_number').val(). Nothing changed!
-
+To get the value of the input control, still use $('#phone_number').val(). Nothing changed!
